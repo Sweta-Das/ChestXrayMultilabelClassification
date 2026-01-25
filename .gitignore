@@ -1,0 +1,10 @@
+__pycache__/
+*.zip
+*.png
+*.jpg
+*.log
+*.log.json
+*.pth
+*.onnx
+*.pkl
+*.h5
