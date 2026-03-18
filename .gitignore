@@ -8,3 +8,5 @@ __pycache__/
 *.onnx
 *.pkl
 *.h5
+proxy.sh
+.DS_Store

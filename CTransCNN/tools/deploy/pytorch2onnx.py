@@ -1,4 +1,3 @@
-# Copyright (c) OpenMMLab. All rights reserved.
 import argparse
 import os.path as osp
 import warnings
@@ -7,8 +6,8 @@ import mmcv
 import numpy as np
 import torch
 from mmcv.runner import load_checkpoint
-
 from model.models import build_classifier
+
 
 # A dummy function to handle a potential compatibility issue
 def _demo_mm_inputs(input_shape, num_classes):
@@ -38,39 +37,46 @@ def pytorch2onnx(model,
                  show=False,
                  output_file='tmp.onnx',
                  verify=False):
-    """Export Pytorch model to ONNX model and verify the outputs are same
-    between Pytorch and ONNX.
+    """Export Pytorch model to ONNX model and verify the outputs are same between Pytorch and ONNX.
 
     Args:
         model (nn.Module): Pytorch model we want to export.
-        input_shape (tuple): Use this input shape to construct
-            the corresponding dummy input and execute the model.
+        input_shape (tuple): Use this input shape to construct the corresponding dummy input and execute the model.
         opset_version (int): The onnx op-set version to export.
         show (bool): Whether print the computation graph.
-        output_file (string): The path to where we store the exported
-            ONNX model.
-        verify (bool): Whether compare the outputs between Pytorch
-            and ONNX.
+        output_file (string): The path to where we store the exported ONNX model.
+        verify (bool): Whether compare the outputs between Pytorch and ONNX.
     """
     model.cpu().eval()
     
     # Get the number of classes from the model's head
     if hasattr(model, 'head') and hasattr(model.head, 'num_classes'):
         num_classes = model.head.num_classes
-    # Fallback for models that do not have a standard head
-    elif hasattr(model.head, 'fc') and hasattr(model.head.fc, 'out_features'):
-        num_classes = model.head.fc.out_features
     else:
-        # If you get this error, you might need to adjust it to find the final layer
-        raise AttributeError("Cannot find the number of classes in the model's head.")
+        num_classes=14
 
     mm_inputs = _demo_mm_inputs(input_shape, num_classes)
     imgs = mm_inputs.pop('img')
     # img_list = [img for img in imgs]
 
-    # replace original forward function
-    origin_forward = model.forward
-    model.forward = model.forward_dummy
+    # Custom Forward Wrapper
+    def custom_export_forward(img):
+
+        # Extract features from backbone
+        feats = model.backbone(img)
+        # Pass features through the head (linear layer)
+        cls_score = model.head(feats)
+
+        # Handle cases where head might return a list of scores
+        if isinstance(cls_score, (list, tuple)):
+            cls_score = cls_score[0]
+
+        # Add sigmoid layer
+        return torch.sigmoid(cls_score)
+
+
+    # model's forward method for export session
+    model.forward = custom_export_forward
     
     # ---- THE CORE ONNX EXPORT CALL ----
     torch.onnx.export(
@@ -79,23 +85,25 @@ def pytorch2onnx(model,
         export_params=True,
         keep_initializers_as_inputs=False,
         verbose=show,
-        opset_version=opset_version)
+        opset_version=opset_version,
+        input_names=['input'],
+        output_names=['output'])
     
-    model.forward = origin_forward
     print(f'Successfully exported ONNX model: {output_file}')
 
     if verify:
         # check by onnx
         import onnx
+        import onnxruntime as ort
+
         onnx_model = onnx.load(output_file)
         onnx.checker.check_model(onnx_model)
 
-        # check the numerical value
-        # get pytorch output
-        pytorch_results = model(imgs, return_loss=False)
+        # Get PyTorch output using custom forward
+        with torch.no_grad():
+            pytorch_results = model(imgs).numpy()
 
         # get onnx output
-        import onnxruntime as ort
         sess = ort.InferenceSession(output_file)
         onnx_inputs = {sess.get_inputs()[0].name: imgs.detach().numpy()}
         onnx_results = sess.run(None, onnx_inputs)[0]
