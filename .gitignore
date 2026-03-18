@@ -8,8 +8,5 @@ __pycache__/
 *.onnx
 *.pkl
 *.h5
-<<<<<<< HEAD
 proxy.sh
-=======
->>>>>>> d83cc97 (removed all ctranscnn files)
 .DS_Store
