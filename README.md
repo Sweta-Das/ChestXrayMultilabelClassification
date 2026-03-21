@@ -32,3 +32,6 @@ The system includes a user interface for:
     - Automated generation of clinical impressions from:
 - Heatmaps
     - 3D representations
+
+## 🎥 Demo
+![Demo](./assets/demo1.gif)
