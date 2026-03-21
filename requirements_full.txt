@@ -1,0 +1,28 @@
+# Project-wide requirements
+# Backend Python dependencies
+fastapi
+pydantic
+dotenv
+uvicorn
+onnxruntime
+numpy
+openai
+opencv-python
+Pillow
+reportlab
+
+# Frontend dependencies (see frontend/package.json for npm dependencies)
+# For frontend, run: cd frontend && npm install
+# Main frontend packages:
+#   next@16.1.6
+#   react@19.2.3
+#   react-dom@19.2.3
+#   zustand@^4.5.0
+#   tailwindcss@^4
+#   typescript@^5
+#   eslint@^9
+#   @types/node@^20
+#   @types/react@^19
+#   @types/react-dom@^19
+#   eslint-config-next@16.1.6
+#   @tailwindcss/postcss@^4

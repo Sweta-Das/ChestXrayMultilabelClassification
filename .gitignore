@@ -1,0 +1,34 @@
+# --------------------
+# Secrets
+# --------------------
+.env
+
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.python-version
+# --------------------
+# Virtual environments
+# --------------------
+CORNERSTONE/
+.env/
+.venv/
+venv/
+# --------------------
+# OS files
+# --------------------
+.DS_Store
+Thumbs.db
+
+# --------------------
+# Generated files
+# --------------------
+*.pdf
+*.onnx
+*.pth
+outputs/

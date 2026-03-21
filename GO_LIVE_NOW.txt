@@ -1,0 +1,141 @@
+================================================================================
+✅ ALL DEPENDENCIES INSTALLED - READY TO GO!
+================================================================================
+
+Your system is ready! All packages are already installed:
+
+✅ Backend packages (pip):
+   - fastapi==0.109.0
+   - uvicorn[standard]==0.27.0
+   - onnxruntime==1.16.3
+   - opencv-python==4.9.0.80
+   - And 20+ more...
+
+✅ Frontend packages (npm):
+   - next@16.1.6
+   - react@19.2.3
+   - zustand@^4.5.0
+   - And all dependencies installed
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+🚀 NOW RUN YOUR APPLICATION (2 TERMINALS)
+════════════════════════════════════════════════════════════════════════════════
+
+
+TERMINAL 1 - BACKEND (Use python3):
+────────────────────────────────────────────────────────────────────────────
+
+cd /home/mp/Desktop/CTrans-CNN1
+source venv/bin/activate
+python3 api.py
+
+Expected output:
+  🚀 Starting FastAPI Server
+  ========================================
+  📍 API Documentation: http://localhost:8000/docs
+  📍 Health Check: http://localhost:8000/
+  ========================================
+  INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+
+
+TERMINAL 2 - FRONTEND (Already have npm packages):
+────────────────────────────────────────────────────────────────────────────
+
+cd /home/mp/Desktop/CTrans-CNN1/frontend
+npm run dev
+
+Expected output:
+  ▲ Next.js 16.1.6
+  - Local:        http://localhost:3000
+  
+  ✓ Ready in 2.3s
+
+
+BROWSER - OPEN APPLICATION:
+────────────────────────────────────────────────────────────────────────────
+
+http://localhost:3000
+
+You should see:
+  🩺 AI-Assisted Chest X-ray Analysis
+  [Upload a chest X-ray image...]
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+⚡ QUICK REFERENCE
+════════════════════════════════════════════════════════════════════════════════
+
+Backend:  http://localhost:8000
+API Docs: http://localhost:8000/docs
+Frontend: http://localhost:3000
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+✅ CHECKLIST BEFORE YOU START
+════════════════════════════════════════════════════════════════════════════════
+
+□ Terminal 1: cd /home/mp/Desktop/CTrans-CNN1
+□ Terminal 1: source venv/bin/activate
+□ Terminal 2: cd /home/mp/Desktop/CTrans-CNN1/frontend
+□ Ports 8000 and 3000 are free (not in use)
+□ Internet connection is active (for OpenAI API)
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+🎯 WORKFLOW ONCE RUNNING
+════════════════════════════════════════════════════════════════════════════════
+
+1. Go to http://localhost:3000# Frontend requirements (see frontend/package.json for npm dependencies)
+
+2. Upload a chest X-ray image (drag & drop)
+3. Click "Run AI Analysis"
+4. Click "Generate Explainability Heatmaps"
+5. Click a disease to view GradCAM heatmap
+6. Toggle between Original | Heatmap | Overlay
+7. Click "Generate Medical Report"
+8. Click "Download Report PDF"
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+IF SOMETHING GOES WRONG
+════════════════════════════════════════════════════════════════════════════════
+
+Backend won't start:
+  Problem: Port 8000 in use
+  Solution: pkill -f "python3 api.py"
+           Then try again: python3 api.py
+
+Frontend won't start:
+  Problem: Port 3000 in use
+  Solution: pkill -f "node"
+           Then try again: npm run dev
+
+Nothing shows in browser:
+  Problem: Frontend not running
+  Solution: Check Terminal 2 shows "✓ Ready in X.Xs"
+           Check browser console (F12) for errors
+
+API not responding:
+  Problem: Backend not running
+  Solution: Check Terminal 1 shows "Uvicorn running on..."
+           Try curl http://localhost:8000
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+YOU'RE READY TO GO! 🚀
+════════════════════════════════════════════════════════════════════════════════
+
+Everything is installed and configured. Just run:
+
+Terminal 1:  python3 api.py
+Terminal 2:  npm run dev
+Browser:     http://localhost:3000
+
+Good luck! 🎉

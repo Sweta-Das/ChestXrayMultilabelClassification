@@ -1,0 +1,402 @@
+% ============================================================================
+%  AI-ASSISTED CHEST RADIOGRAPH ANALYSIS REPORT
+%  Professional Clinical-Grade Report Template
+%  CTransCNN Deep Learning Architecture + RAG Clinical Reasoning
+%  Version 2.0 | Confidential Medical Document
+% ============================================================================
+
+\documentclass[11pt, a4paper]{article}
+
+% ----------------------- Core Packages ------------------------------------
+\usepackage[a4paper, top=0.6in, bottom=0.8in, left=0.75in, right=0.75in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage[expansion=false]{microtype}
+\usepackage{lastpage}
+\usepackage{ragged2e}
+\usepackage{float}
+\usepackage{parskip}
+\usepackage{pifont}
+\usepackage{fontawesome5}
+
+% ----------------------- TikZ Libraries -----------------------------------
+\usetikzlibrary{calc, positioning, shadows}
+
+% ----------------------- tcolorbox Libraries ------------------------------
+\tcbuselibrary{skins, breakable}
+
+% ----------------------- Color Palette ------------------------------------
+\definecolor{headerNavy}{HTML}{1B2A4A}
+\definecolor{headerGold}{HTML}{C9A94E}
+\definecolor{accentBlue}{HTML}{2563EB}
+\definecolor{accentTeal}{HTML}{0D9488}
+\definecolor{sectionBlue}{HTML}{1E40AF}
+\definecolor{lightBg}{HTML}{F8FAFC}
+\definecolor{cardBorder}{HTML}{E2E8F0}
+\definecolor{textPrimary}{HTML}{1E293B}
+\definecolor{textSecondary}{HTML}{64748B}
+\definecolor{riskHigh}{HTML}{DC2626}
+\definecolor{riskModerate}{HTML}{D97706}
+\definecolor{riskLow}{HTML}{16A34A}
+\definecolor{tableHeader}{HTML}{1E3A5F}
+\definecolor{tableRowAlt}{HTML}{F1F5F9}
+\definecolor{impressionBg}{HTML}{EFF6FF}
+\definecolor{impressionBorder}{HTML}{3B82F6}
+\definecolor{disclaimerBg}{HTML}{FFF7ED}
+\definecolor{disclaimerBorder}{HTML}{F59E0B}
+\definecolor{methodBg}{HTML}{F0FDF4}
+\definecolor{methodBorder}{HTML}{22C55E}
+\definecolor{footerGray}{HTML}{94A3B8}
+
+% ----------------------- Typography ---------------------------------------
+\setstretch{1.2}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.4em}
+
+% ----------------------- Section Styling ----------------------------------
+\titleformat{\section}
+  {\color{sectionBlue}\bfseries\large}
+  {\thesection}{0em}{}
+  [\vspace{-0.5em}{\color{cardBorder}\hrule height 0.5pt}]
+
+\titleformat{\subsection}
+  {\color{textPrimary}\bfseries\normalsize}
+  {\thesubsection}{0em}{}
+
+% ----------------------- Header / Footer ----------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{cardBorder}\leaders\hrule height \footrulewidth\hfill}\vskip 2pt}
+
+\lfoot{\footnotesize\color{footerGray}\faLock\ \ CONFIDENTIAL -- For Authorized Medical Personnel Only}
+\rfoot{\footnotesize\color{footerGray}Page \thepage\ of \pageref{LastPage}}
+
+% ----------------------- Custom Boxes -------------------------------------
+% -- Patient Info Card
+\newtcolorbox{patientcard}{
+  enhanced,
+  colback=lightBg,
+  colframe=cardBorder,
+  boxrule=0.5pt,
+  arc=4pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  shadow={1pt}{-1pt}{0pt}{black!8}
+}
+
+% -- Clinical Alert Box
+\newtcolorbox{alertbox}[1][]{
+  enhanced,
+  colback=impressionBg,
+  colframe=impressionBorder,
+  boxrule=1pt,
+  arc=4pt,
+  left=12pt, right=12pt, top=10pt, bottom=10pt,
+  fonttitle=\bfseries\color{sectionBlue},
+  title={#1},
+  attach boxed title to top left={yshift=-2mm, xshift=5mm},
+  boxed title style={colback=white, colframe=impressionBorder, boxrule=0.5pt, arc=2pt}
+}
+
+% -- Methodology Box
+\newtcolorbox{methodbox}{
+  enhanced,
+  colback=methodBg,
+  colframe=methodBorder,
+  boxrule=0.5pt,
+  arc=4pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+}
+
+% -- Disclaimer Box
+\newtcolorbox{disclaimerbox}{
+  enhanced,
+  colback=disclaimerBg,
+  colframe=disclaimerBorder,
+  boxrule=0.5pt,
+  arc=4pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+}
+
+% ============================================================================
+%                         DOCUMENT BEGIN
+% ============================================================================
+\begin{document}
+\color{textPrimary}
+
+% ======================== HEADER BANNER ====================================
+\begin{tikzpicture}[remember picture, overlay]
+  % -- Navy gradient header bar
+  \fill[headerNavy]
+    ([yshift=0pt]current page.north west) rectangle
+    ([yshift=-100pt]current page.north east);
+  % -- Gold accent line
+  \fill[headerGold]
+    ([yshift=-100pt]current page.north west) rectangle
+    ([yshift=-104pt]current page.north east);
+  % -- Institution Name
+  \node[anchor=north west, text=white, font=\fontsize{10}{12}\selectfont]
+    at ([xshift=40pt, yshift=-16pt]current page.north west)
+    {DEPARTMENT OF RADIOLOGY \& DIAGNOSTIC IMAGING};
+  % -- Main Title
+  \node[anchor=north west, text=white, font=\fontsize{18}{22}\selectfont\bfseries]
+    at ([xshift=40pt, yshift=-36pt]current page.north west)
+    {AI-Assisted Chest Radiograph Analysis};
+  % -- Subtitle
+  \node[anchor=north west, text=headerGold, font=\fontsize{9}{11}\selectfont]
+    at ([xshift=40pt, yshift=-60pt]current page.north west)
+    {CTransCNN Deep Learning Architecture\ \ \textbar\ \ RAG-Enhanced Clinical Reasoning\ \ \textbar\ \ Automated Diagnostic Support};
+  % -- Report ID (right side)
+  \node[anchor=north east, text=white!80, font=\fontsize{8}{10}\selectfont]
+    at ([xshift=-40pt, yshift=-20pt]current page.north east)
+    {Report ID: {{REPORT_ID}}};
+  % -- Date (right side)
+  \node[anchor=north east, text=white!80, font=\fontsize{8}{10}\selectfont]
+    at ([xshift=-40pt, yshift=-34pt]current page.north east)
+    {Generated: {{REPORT_DATE}}};
+  % -- Risk badge
+  \node[anchor=north east, rounded corners=3pt, fill={{RISK_COLOR}}, text=white,
+        font=\fontsize{9}{11}\selectfont\bfseries, inner sep=5pt]
+    at ([xshift=-40pt, yshift=-55pt]current page.north east)
+    {{{RISK_LEVEL}} RISK};
+\end{tikzpicture}
+
+\vspace{60pt}
+
+% ======================== PATIENT DEMOGRAPHICS ==============================
+\begin{patientcard}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\color{textSecondary}\small}l >{\small}X >{\bfseries\color{textSecondary}\small}l >{\small}X@{}}
+  \faUser\ \ Patient ID: & {{PATIENT_ID}} &
+  \faCalendar*\ \ Report Date: & {{REPORT_DATE}} \\[6pt]
+  \faImage\ \ Modality: & Posterior-Anterior (PA) Chest Radiograph &
+  \faCog\ \ AI Model: & CTransCNN v1.0 (ONNX) \\[6pt]
+  \faFlask\ \ Analysis: & Deep Learning + RAG Clinical Reasoning &
+  \faSearch\ \ Conditions Screened: & {{NUM_CONDITIONS}} Pathologies \\
+\end{tabularx}
+\end{patientcard}
+
+\vspace{0.6em}
+
+% ======================== CLINICAL SUMMARY ==================================
+\begin{tcolorbox}[
+  enhanced,
+  colback=white,
+  colframe=accentBlue,
+  boxrule=0.8pt,
+  arc=4pt,
+  left=12pt, right=12pt, top=8pt, bottom=8pt,
+  title={\faChartBar\ \ Quick Clinical Summary},
+  fonttitle=\bfseries\color{white},
+  coltitle=white,
+  attach boxed title to top left={yshift=-2mm, xshift=5mm},
+  boxed title style={colback=accentBlue, arc=2pt, boxrule=0pt},
+]
+\begin{tabularx}{\textwidth}{@{}l X@{}}
+  \textbf{\color{sectionBlue}Primary Finding:} & \textbf{{PRIMARY_FINDING}} ({{PRIMARY_CONFIDENCE}}\% confidence) \\[4pt]
+  \textbf{\color{sectionBlue}Risk Assessment:} & \textbf{\color{{RISK_COLOR}}{{RISK_LEVEL}} -- {{RISK_DESCRIPTION}}} \\[4pt]
+  \textbf{\color{sectionBlue}AI Confidence:} & Model predictions based on analysis of {{NUM_CONDITIONS}} thoracic conditions \\
+\end{tabularx}
+\end{tcolorbox}
+
+\vspace{0.6em}
+
+% ======================== IMAGING STUDY =====================================
+\section*{\faImage\ \ Imaging Study}
+
+\begin{tcolorbox}[
+  enhanced,
+  colback=white,
+  colframe=cardBorder,
+  boxrule=0.5pt,
+  arc=4pt,
+  shadow={1pt}{-1pt}{0pt}{black!5},
+]
+\begin{center}
+  \includegraphics[width=0.68\textwidth, keepaspectratio]{{XRAY_IMAGE_PATH}}
+\end{center}
+\vspace{-0.5em}
+\begin{center}
+  \small\color{textSecondary}
+  \textit{Figure 1: PA Chest Radiograph -- Patient {{PATIENT_ID}} -- Acquired for AI-assisted analysis}
+\end{center}
+\end{tcolorbox}
+
+\vspace{0.6em}
+
+% ======================== AI FINDINGS TABLE =================================
+\section*{\faStethoscope\ \ Diagnostic Findings}
+
+\vspace{0.3em}
+{\small\color{textSecondary}
+The following table presents the AI model's predicted probability for each screened thoracic condition.
+Probabilities above 50\% warrant clinical correlation; values above 70\% indicate high diagnostic confidence.}
+
+\vspace{0.5em}
+
+\begingroup
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{
+  >{\raggedright\arraybackslash}X
+  >{\centering\arraybackslash}p{3.5cm}
+  >{\centering\arraybackslash}p{3cm}
+}
+\rowcolor{tableHeader}
+\textcolor{white}{\textbf{Pathological Condition}} &
+\textcolor{white}{\textbf{AI Probability}} &
+\textcolor{white}{\textbf{Clinical Significance}} \\
+\midrule
+{{FINDINGS_TABLE}}
+\bottomrule
+\end{tabularx}
+\endgroup
+
+\vspace{0.3em}
+{\scriptsize\color{textSecondary}
+\ding{110}\ Probabilities are derived from the CTransCNN model output layer via softmax normalization.
+Significance levels: \textcolor{riskHigh}{\textbf{High}} ($\geq$50\%) \textbar\
+\textcolor{riskModerate}{\textbf{Moderate}} (30--49\%) \textbar\
+\textcolor{riskLow}{\textbf{Low}} ($<$30\%)}
+
+\vspace{0.6em}
+
+% ======================== CLINICAL IMPRESSION ===============================
+\section*{\faFile\ \ Clinical Impression}
+
+\begin{alertbox}[\faFlask\ \ AI-Generated Clinical Interpretation]
+\setstretch{1.35}
+{{IMPRESSION_TEXT}}
+\end{alertbox}
+
+\vspace{0.3em}
+{\scriptsize\color{textSecondary}\faInfoCircle\ \ This interpretation was generated using
+Retrieval-Augmented Generation (RAG) with GPT-4o-mini, grounded in curated medical literature
+and the patient's diagnostic findings. It is intended to assist -- not replace -- clinical judgment.}
+
+\vspace{0.6em}
+
+% ======================== AI METHODOLOGY ====================================
+\section*{\faCogs\ \ AI Analysis Methodology}
+
+\begin{methodbox}
+\begin{enumerate}[leftmargin=1.5em, itemsep=4pt, label=\textbf{\arabic*.}]
+  \item \textbf{Image Acquisition \& Preprocessing:}
+    The chest radiograph is resized to 224$\times$224 pixels, normalized using ImageNet channel statistics
+    ($\mu$=[0.485, 0.456, 0.406], $\sigma$=[0.229, 0.224, 0.225]), and converted to a 4D tensor for model input.
+
+  \item \textbf{Deep Learning Classification (CTransCNN):}
+    A hybrid Convolutional Transformer Neural Network (CTransCNN) processes the image through convolutional
+    feature extraction layers followed by multi-head self-attention transformer blocks.
+    The model was trained on the NIH ChestX-ray14 dataset (112,120 frontal-view chest radiographs)
+    and outputs probability scores for {{NUM_CONDITIONS}} thoracic pathologies.
+
+  \item \textbf{Explainability (Occlusion-Based Saliency):}
+    Spatial regions of diagnostic importance are identified using structured occlusion sensitivity analysis.
+    A 28$\times$28 sliding window systematically occludes image regions, and the resulting probability
+    deviations are mapped to generate class-specific heatmaps highlighting pathologically relevant areas.
+
+  \item \textbf{Clinical Reasoning (RAG Pipeline):}
+    A Retrieval-Augmented Generation (RAG) pipeline retrieves relevant medical literature from a curated
+    knowledge base and synthesizes a structured clinical impression using GPT-4o-mini,
+    contextualizing the AI findings within established radiological practice.
+\end{enumerate}
+\end{methodbox}
+
+\vspace{0.6em}
+
+% ======================== QUALITY METRICS ===================================
+\section*{\faCheckCircle\ \ Quality Assurance}
+
+\begin{patientcard}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\small}l >{\small}X@{}}
+  Model Architecture: & CTransCNN (Convolutional Transformer CNN) -- ONNX Runtime Inference \\[3pt]
+  Training Dataset: & NIH ChestX-ray14 (112,120 images, 14 pathology classes) \\[3pt]
+  Input Specification: & 224 $\times$ 224 px, 3-channel RGB, ImageNet normalization \\[3pt]
+  Inference Engine: & ONNX Runtime 1.16.3 (CPU optimized) \\[3pt]
+  Report Generation: & OpenAI GPT-4o-mini via RAG pipeline with medical knowledge retrieval \\[3pt]
+  Report Standard: & Structured radiology report format per ACR guidelines \\
+\end{tabularx}
+\end{patientcard}
+
+\vspace{0.8em}
+
+% ======================== DISCLAIMER ========================================
+\begin{disclaimerbox}
+\begin{center}
+\textbf{\color{riskModerate}\faExclamationTriangle\ \ Important Medical Disclaimer}
+\end{center}
+
+\vspace{0.3em}
+\small
+This report has been generated by an artificial intelligence system designed for \textbf{clinical decision
+support only}. It does \textbf{not} constitute a medical diagnosis, clinical recommendation,
+or treatment plan.
+
+\vspace{0.3em}
+\begin{itemize}[leftmargin=1.5em, itemsep=2pt]
+  \item[\ding{110}] All AI-generated findings \textbf{must} be reviewed and validated by a board-certified radiologist
+    or qualified physician before any clinical action is taken.
+  \item[\ding{110}] The AI model's performance is bounded by its training data distribution (NIH ChestX-ray14).
+    Edge cases, rare pathologies, or atypical presentations may not be accurately captured.
+  \item[\ding{110}] This system is intended to augment, not replace, the expertise of trained medical professionals.
+  \item[\ding{110}] Patient management decisions should integrate clinical history, physical examination,
+    laboratory findings, and other imaging studies as appropriate.
+\end{itemize}
+
+\vspace{0.3em}
+\begin{center}
+\small\color{textSecondary}
+\textit{``AI in radiology should be viewed as an intelligent assistant that enhances diagnostic accuracy}\\
+\textit{and efficiency, while the final clinical responsibility remains with the interpreting physician.''}
+\end{center}
+\end{disclaimerbox}
+
+\vspace{1em}
+
+% ======================== SIGNATURE BLOCK ===================================
+\begin{center}
+\color{cardBorder}\rule{0.9\textwidth}{0.5pt}
+\end{center}
+
+\vspace{0.3em}
+
+\begin{tabularx}{\textwidth}{@{}X X@{}}
+\begin{minipage}[t]{0.45\textwidth}
+  \small
+  \textbf{AI System:} CTransCNN v1.0\\
+  \textbf{Report Engine:} RAG + LaTeX Pipeline\\
+  \textbf{Report ID:} {{REPORT_ID}}
+\end{minipage}
+&
+\begin{minipage}[t]{0.45\textwidth}
+  \raggedleft\small
+  \textbf{Reviewing Physician:} \hrulefill\\[12pt]
+  \textbf{Signature:} \hrulefill\\[12pt]
+  \textbf{Date:} \hrulefill
+\end{minipage}
+\\
+\end{tabularx}
+
+\vspace{1em}
+
+\begin{center}
+  \scriptsize\color{footerGray}
+  \faLock\ \ This document contains protected health information (PHI).
+  Unauthorized access, use, or disclosure is strictly prohibited.\\
+  Generated by AI-Assisted Chest Radiograph Analysis System v2.0
+  \textbar\ \ Report ID: {{REPORT_ID}}
+  \textbar\ \ {{REPORT_DATE}}
+\end{center}
+
+\end{document}

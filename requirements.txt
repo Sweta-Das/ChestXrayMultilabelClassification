@@ -1,0 +1,14 @@
+# Backend requirements
+fastapi
+pydantic
+dotenv
+uvicorn
+onnxruntime
+numpy
+openai
+opencv-python
+Pillow
+reportlab
+
+# Frontend requirements (see frontend/package.json for npm dependencies)
+# This file is for Python backend only. See below for frontend npm packages.
