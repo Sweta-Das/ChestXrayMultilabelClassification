@@ -18,6 +18,9 @@ class EvalHook(BaseEvalHook):
     def __init__(self, dataloader, **kwargs):
         super(EvalHook, self).__init__(dataloader, **kwargs)
         self.latest_results = None
+        self.latest_log_buffer_output = None
+        self.latest_key_score = None
+        self.latest_eval_epoch = None
 
     def _do_evaluate(self, runner):
         """perform evaluation and save ckpt."""
@@ -25,6 +28,10 @@ class EvalHook(BaseEvalHook):
         self.latest_results = results
         runner.log_buffer.output['eval_iter_num'] = len(self.dataloader)
         key_score = self.evaluate(runner, results)
+        # Snapshot log buffer right after evaluation so other hooks can use it.
+        self.latest_log_buffer_output = dict(runner.log_buffer.output)
+        self.latest_key_score = key_score
+        self.latest_eval_epoch = runner.epoch + 1
         # the key_score may be `None` so it needs to skip the action to save
         # the best checkpoint
         if self.save_best and key_score:
@@ -42,6 +49,9 @@ class DistEvalHook(BaseDistEvalHook):
     def __init__(self, dataloader, **kwargs):
         super(DistEvalHook, self).__init__(dataloader, **kwargs)
         self.latest_results = None
+        self.latest_log_buffer_output = None
+        self.latest_key_score = None
+        self.latest_eval_epoch = None
 
     def _do_evaluate(self, runner):
         """perform evaluation and save ckpt."""
@@ -72,6 +82,10 @@ class DistEvalHook(BaseDistEvalHook):
             print('\n')
             runner.log_buffer.output['eval_iter_num'] = len(self.dataloader)
             key_score = self.evaluate(runner, results)
+            # Snapshot log buffer right after evaluation so other hooks can use it.
+            self.latest_log_buffer_output = dict(runner.log_buffer.output)
+            self.latest_key_score = key_score
+            self.latest_eval_epoch = runner.epoch + 1
             # the key_score may be `None` so it needs to skip the action to
             # save the best checkpoint
             if self.save_best and key_score:
