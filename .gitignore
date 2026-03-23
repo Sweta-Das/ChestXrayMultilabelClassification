@@ -1,12 +1,45 @@
+# --------------------
+# Python
+# --------------------
 __pycache__/
-*.zip
-*.png
-*.jpg
+.python-version
+
+# --------------------
+# Environment Files
+# --------------------
+.venv/
+venv/
+
+# --------------------
+# Log Files
+# --------------------
 *.log
 *.log.json
+
+# --------------------
+# Generated Files
+# --------------------
 *.pth
 *.onnx
 *.pkl
 *.h5
-proxy.sh
+*.zip
+*.png
+*.jpg
+
+# --------------------
+# MacOS Files
+# --------------------
 .DS_Store
+
+# --------------------
+# Secrets
+# --------------------
+.env
+proxy.sh
+
+# --------------------
+# Ignored Folders
+# --------------------
+frontend/
+outputs/

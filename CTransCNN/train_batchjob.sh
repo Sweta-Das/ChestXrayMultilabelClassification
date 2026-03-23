@@ -5,7 +5,7 @@
 #PBS -m bea
 #PBS -M $USER@iitd.ac.in
 #PBS -l select=1:ncpus=4:ngpus=1
-#PBS -l walltime=10:00:00
+#PBS -l walltime=24:00:00
 
 # 1. Clear everything to prevent 'Stub Library' errors
 module purge

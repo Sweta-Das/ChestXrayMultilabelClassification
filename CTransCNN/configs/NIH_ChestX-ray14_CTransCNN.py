@@ -119,3 +119,17 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
+
+# Early stopping: stop if `multi_auc` doesn't improve for `patience` epochs.
+# Set hook priority low so it runs after EvalHook.
+custom_hooks = [
+    dict(
+        type='EarlyStoppingHook',
+        monitor='multi_auc',
+        rule='greater',
+        patience=20,
+        min_delta=0.0,
+        start_epoch=1,
+        interval=1,
+        priority='LOWEST')
+]

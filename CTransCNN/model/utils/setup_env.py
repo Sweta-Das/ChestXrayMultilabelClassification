@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+
+## Prevent CPU over-subscription and make dataloader multiprocessing predictable
 import os
 import platform
 import warnings
@@ -9,7 +11,7 @@ import torch.multiprocessing as mp
 
 def setup_multi_processes(cfg):
     """Setup multi-processing environment variables."""
-    # set multi-process start method as `fork` to speed up the training
+    # On non-Windows systems, set multi-process start method as `fork` to speed up the training
     if platform.system() != 'Windows':
         mp_start_method = cfg.get('mp_start_method', 'fork')
         current_method = mp.get_start_method(allow_none=True)
@@ -45,3 +47,6 @@ def setup_multi_processes(cfg):
             f'overloaded, please further tune the variable for optimal '
             f'performance in your application as needed.')
         os.environ['MKL_NUM_THREADS'] = str(mkl_num_threads)
+
+# When running multiple dataloader workers, each worker process won't also spawn lots of OpenCV/OMP/MKL threads
+# which may cause system overload. So we set the number of threads to 1 for each worker process.

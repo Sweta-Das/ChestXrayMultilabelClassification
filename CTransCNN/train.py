@@ -110,6 +110,7 @@ def main():
     if args.work_dir is not None:
         # update configs according to CLI args if args.work_dir is not None
         cfg.work_dir = args.work_dir # sets dir for logs & checkpoints
+        
     elif cfg.get('work_dir', None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join('./work_dirs',
@@ -126,6 +127,7 @@ def main():
         warnings.warn('`--gpus` is deprecated because we only support '
                       'single GPU mode in non-distributed training. '
                       'Use `gpus=1` now.')
+        
     if args.gpu_ids is not None:
         cfg.gpu_ids = args.gpu_ids[0:1]
         warnings.warn('`--gpu-ids` is deprecated, please use `--gpu-id`. '
@@ -151,8 +153,10 @@ def main():
 
     # Prepare work dir & logger
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
+
     # dump config (Saves a copy of config for reproducibility)
     cfg.dump(osp.join(cfg.work_dir, osp.basename(args.config)))
+
     # init the logger before other steps
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     log_file = osp.join(cfg.work_dir, f'{timestamp}.log')

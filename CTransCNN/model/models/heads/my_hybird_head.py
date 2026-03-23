@@ -32,7 +32,9 @@ class My_Hybird_Head(ClsHead):
                                        num_classes)
         self.trans_cls_head = nn.Linear(self.in_channels[1],
                                         num_classes) 
-        self.fc = nn.Linear(in_features=num_classes * 2, out_features=num_classes)  # add
+        # Learnable fusion layer to combine the two branch logits
+        self.fc = nn.Linear(
+            in_features=num_classes * 2, out_features=num_classes)
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
@@ -60,40 +62,39 @@ class My_Hybird_Head(ClsHead):
         assert len(x) == 2
         conv_cls_score = self.conv_cls_head(x[0])
         tran_cls_score = self.trans_cls_head(x[1]) 
-        a = 0.9
+        cls_score = self.fc(torch.cat([conv_cls_score, tran_cls_score], dim=1))
         if sigmoid:
-            cls_score = a * conv_cls_score + (1 - a) * tran_cls_score  # cls_score: tensor(32,7)
             pred = (
                 F.sigmoid(cls_score) if cls_score is not None else None)  # pred: tensor(32,7)
             if post_process:  # post_process： True
                 pred = self.post_process(pred)
         else:
-            pred = [conv_cls_score, tran_cls_score]
+            pred = cls_score
             if post_process:
-                pred = list(map(self.post_process, pred))
+                pred = self.post_process(pred)
         return pred
 
-    def forward_train(self, x, gt_label):  # gt_label [32, 11]
+    def forward_train(self, x, gt_label, **kwargs):  # gt_label [32, 11]
         x = self.pre_logits(x)
         assert isinstance(x, list) and len(x) == 2, \
             'There should be two outputs in the CTransCNN model'
-        conv_cls_score = self.conv_cls_head(x[0])  # x[0]: [32,768,14,14]
-        tran_cls_score = self.trans_cls_head(x[1])  # x[1]: [32,768]
+        conv_cls_score = self.conv_cls_head(x[0])
+        tran_cls_score = self.trans_cls_head(x[1])
+        cls_score = self.fc(torch.cat([conv_cls_score, tran_cls_score], dim=1))
 
-        losses = self.loss([conv_cls_score, tran_cls_score], gt_label)
+        losses = self.loss(cls_score, gt_label, **kwargs)
         return losses
 
-    def loss(self, cls_score, gt_label):
-        num_samples = len(cls_score[0])
+    def loss(self, cls_score, gt_label, **kwargs):
+        gt_label = gt_label.type_as(cls_score)
+        num_samples = len(cls_score)
         losses = dict()
         # compute loss
-        loss = sum([
-            self.compute_loss(score, gt_label, avg_factor=num_samples) /
-            len(cls_score) for score in cls_score
-        ])
+        loss = self.compute_loss(
+            cls_score, gt_label, avg_factor=num_samples, **kwargs)
         if self.cal_acc:
             # compute accuracy
-            acc = self.compute_accuracy(cls_score[0] + cls_score[1], gt_label)
+            acc = self.compute_accuracy(cls_score, gt_label)
             assert len(acc) == len(self.topk)
             losses['accuracy'] = {
                 f'top-{k}': a
