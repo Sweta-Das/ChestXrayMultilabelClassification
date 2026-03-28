@@ -12,8 +12,7 @@ model = dict(
         num_classes=14,
         in_channels=2048,
         init_cfg=None,
-        loss=dict(type='BCE_ASL_Focal', reduction='mean', loss_weight=1),
-        cal_acc=False),
+        loss=dict(type='BCE_ASL_Focal', reduction='mean', loss_weight=1)),
 )
 
 # dataset settings
@@ -47,11 +46,17 @@ test_pipeline = [
     dict(type='Collect', keys=['img'])
 ]
 
+import os
 import os.path as osp
 
-# Resolve `dataset/` relative to this config file so you can run training from
-# either the repo root or the `CTransCNN/` directory.
-data_root = osp.abspath(osp.join(osp.dirname(__file__), '..', 'dataset')) + '/'
+# Resolve the dataset from the submission directory first, because PBS jobs
+# may stage the config file into /var/tmp while the real dataset remains in the
+# shared repo checkout.
+_workdir = os.environ.get('PBS_O_WORKDIR')
+if _workdir and osp.exists(osp.join(_workdir, 'dataset')):
+    data_root = osp.abspath(osp.join(_workdir, 'dataset')) + '/'
+else:
+    data_root = osp.abspath(osp.join(osp.dirname(__file__), '..', 'dataset')) + '/'
 data = dict(
     samples_per_gpu=32,
     workers_per_gpu=8,

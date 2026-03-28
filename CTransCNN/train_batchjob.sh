@@ -38,10 +38,8 @@ python -u -c "import cv2; import mmcv; print('OpenCV and MMCV loaded successfull
 # 6. Final Integrity & Path Check
 echo "--- Current Location ---"
 pwd
-echo "--- Checking if open_data exists here ---"
-ls -d open_data
-echo "--- Checking if the specific file exists ---"
-ls -l ./open_data/NIH-Chest_x-rays14_multi-label/add72_chest14_classes.txt
+echo "--- Checking ChestX-ray14 dataset files ---"
+ls -l ./dataset/chest14_classes.txt ./dataset/chest14_train_labels.txt ./dataset/chest14_val_labels.txt ./dataset/chest14_test_labels.txt
 
 echo "--- GPU Check ---"
 python -u -c "import torch; print('CUDA Available:', torch.cuda.is_available())"
@@ -49,6 +47,7 @@ python -u -c "import torch; print('CUDA Available:', torch.cuda.is_available())"
 # 7. Run Training
 export PYTHONUNBUFFERED=1
 
-# Use the 'realpath' command to tell Python exactly where the config and data are
-CONFIG_PATH=$(realpath configs/NIH_ChestX-ray14_CTransCNN.py)
+# Use the ResNet-only config and resolve it absolutely so PBS does not
+# accidentally interpret paths relative to a temporary working directory.
+CONFIG_PATH=$(realpath configs/NIH_ChestX-ray14_ResNet50.py)
 python -u train.py $CONFIG_PATH
