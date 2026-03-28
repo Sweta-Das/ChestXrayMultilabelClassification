@@ -1,0 +1,32 @@
+START
+  ↓
+CLI / Function Call
+  ↓
+Parse Inputs
+(model_path, image, predictions, labels)
+  ↓
+Load Model (with caching)
+  ↓
+Find Target Layer
+  ↓
+Preprocess Image → Tensor
+  ↓
+Select Target Classes
+(top_k / threshold / specific index)
+  ↓
+FOR each selected class:
+    ↓
+  Run Grad-CAM
+    ↓
+  Generate grayscale CAM
+    ↓
+  Convert → colored heatmap
+    ↓
+  Overlay on original image
+    ↓
+  Convert outputs → base64
+END LOOP
+  ↓
+Return results dict
+  ↓
+END

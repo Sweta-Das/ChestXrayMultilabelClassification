@@ -1,0 +1,32 @@
+START
+  ↓
+Call render_latex_report(...)
+  ↓
+Create output directory (if not exists)
+  ↓
+Construct file paths (.tex, .pdf)
+  ↓
+Read LaTeX template file
+  ↓
+Replace placeholders using context
+  ↓
+Write filled template → .tex file
+  ↓
+Get LaTeX binary (pdflatex or env variable)
+  ↓
+Prepare LaTeX command
+  ↓
+Run LaTeX (1st pass)
+  ↓
+Run LaTeX (2nd pass)
+  ↓
+Did PDF get created?
+  ↓
+ ┌────────────── YES ───────────────┐
+ ↓                                 ↓
+Clean auxiliary files           NO → Raise Error
+(.aux, .log, .out)                  ↓
+ ↓                                  END (Exception)
+Return PDF path
+  ↓
+END

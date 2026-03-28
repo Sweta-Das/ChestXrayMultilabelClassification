@@ -35,4 +35,3 @@ Thumbs.db
 *.pth
 *.log
 outputs/
-flow*

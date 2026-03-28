@@ -1,127 +1,208 @@
-
 ================================================================================
    CTrans-CNN1: AI-ASSISTED CHEST X-RAY ANALYSIS & MEDICAL REPORT GENERATOR
 ================================================================================
 
 SYSTEM OVERVIEW
 ================================================================================
-This project is a modern, production-ready AI system for chest X-ray analysis and medical report generation. It features:
+This project is a production-oriented chest X-ray analysis system with a clean
+split between fast prediction, explainability, reporting, and evaluation.
 
-- Deep learning model (CTransCNN, ONNX) for multi-label disease classification
-- Retrieval-Augmented Generation (RAG) pipeline for clinical context and impression text (OpenAI GPT-4o-mini)
-- GradCAM explainability for model predictions
-- LaTeX-based PDF report generation
-- Professional Next.js (TypeScript) frontend
-- FastAPI backend (RESTful, async)
+Current design:
+- ONNX model for fast multi-label disease prediction
+- PyTorch `.pth` model for Grad-CAM explainability
+- Dockerized Linux backend for the CTransCNN / MMCV runtime
+- FastAPI backend with async REST endpoints
+- Next.js frontend with disease selection and heatmap views
+- RAG-based report generation with OpenAI
+- LaTeX PDF report generation
+- Bounding-box comparison tooling for Grad-CAM sanity checks
 
 --------------------------------------------------------------------------------
 ARCHITECTURE DIAGRAM
 --------------------------------------------------------------------------------
 
-  ┌───────────────┐      REST API      ┌───────────────┐
-  │   Next.js     │  ◀──────────────▶  │   FastAPI     │
-  │  Frontend     │                   │   Backend     │
-  │ (Port 3000)   │                   │  (Port 8000)  │
-  └───────────────┘                   └───────────────┘
-         │                                   │
-         ▼                                   ▼
-   [User Uploads]                      [Model Inference]
-         │                                   │
-         ▼                                   ▼
-   [Image Display]                ┌───────────────┐
-         │                       │   ONNX Model  │
-         ▼                       └───────────────┘
-   [Run Inference]                      │
-         │                             ▼
-         ▼                       ┌───────────────┐
-   [Show Results]                │   GradCAM     │
-         │                       └───────────────┘
-         ▼                             │
-   [Generate Report]                   ▼
-         │                       ┌───────────────┐
-         ▼                       │     RAG       │
-   [Download PDF]                └───────────────┘
-         │                             │
-         ▼                             ▼
-   [Professional PDF]           [OpenAI GPT-4o-mini]
+  ┌────────────────┐      REST API      ┌────────────────┐
+  │   Next.js      │  ◀──────────────▶  │    FastAPI     │
+  │   Frontend     │                   │    Backend     │
+  │ (Port 3000)    │                   │   (Port 8000)   │
+  └────────────────┘                   └────────────────┘
+         │                                      │
+         ▼                                      ▼
+   [User Upload]                         [Session Store]
+         │                                      │
+         ▼                                      ▼
+   [Prediction UI]                     [ONNX Inference]
+         │                                      │
+         ▼                                      ▼
+   [Disease Selection]               ┌────────────────┐
+         │                          │  ctranscnn_1.onnx │
+         ▼                          └────────────────┘
+   [Explain Selected Disease]                │
+         │                                  ▼
+         │                          ┌────────────────┐
+         │                          │  Grad-CAM Path │
+         │                          └────────────────┘
+         │                                  │
+         │                    ┌─────────────┴─────────────┐
+         │                    ▼                           ▼
+         │          [PyTorch `.pth` Grad-CAM]     [ONNX Occlusion Fallback]
+         │                    │                           │
+         ▼                    ▼                           ▼
+   [Heatmap / Overlay]   [CTransCNN checkpoint]     [Fast fallback heatmap]
+         │
+         ▼
+   [Generate Medical Report]
+         │
+         ▼
+   [LaTeX PDF Download]
 
 --------------------------------------------------------------------------------
 DATA FLOW
 --------------------------------------------------------------------------------
-1. User uploads chest X-ray via frontend (drag-drop)
-2. Frontend calls POST /api/upload (FastAPI)
-3. Backend saves image, returns session_id
-4. Frontend calls POST /api/inference with session_id
-5. Backend runs ONNX model, returns disease probabilities
-6. Frontend displays results, allows GradCAM heatmap generation (POST /api/gradcam)
-7. Frontend calls POST /api/report to generate medical report
-8. Backend uses RAG pipeline (retriever, OpenAI, prompt templates) for impression
-9. Backend renders LaTeX report, compiles PDF
-10. Frontend allows PDF download (GET /api/download/{session_id})
+1. User uploads a chest X-ray through the frontend.
+2. Frontend calls `POST /api/upload`.
+3. Backend stores the image and creates a session.
+4. Frontend calls `POST /api/inference`.
+5. Backend runs ONNX inference with `models/ctranscnn_1.onnx`.
+6. Frontend displays disease probabilities.
+7. User selects a disease and clicks Explain.
+8. Backend tries the PyTorch Grad-CAM path using `CTransCNN/models/epoch_45.pth`.
+9. If PyTorch explainability is unavailable, backend falls back to ONNX occlusion.
+10. Frontend shows original / heatmap / overlay views.
+11. User can generate a medical report.
+12. Backend uses RAG, then renders a LaTeX PDF.
+13. Frontend allows PDF download.
+
+--------------------------------------------------------------------------------
+EXPLAINABILITY FLOW
+--------------------------------------------------------------------------------
+The explainability path is intentionally split:
+
+- Prediction path:
+  - ONNX only
+  - fast, simple deployment
+
+- Explainability path:
+  - `.pth` model for Grad-CAM
+  - loaded only when the user requests explanation
+  - cached per session / disease selection
+
+Fallback behavior:
+- If PyTorch Grad-CAM cannot load, the backend uses ONNX occlusion.
+- This preserves usability even when the CTransCNN runtime is unavailable.
+
+Evaluation support:
+- `scripts/compare_gradcam_bbox.py` compares Grad-CAM output against NIH bbox
+  annotations from `ref/ref.csv`.
+- The script saves:
+  - original image + bbox
+  - Grad-CAM heatmap
+  - Grad-CAM overlay
+  - JSON metadata with a rough bbox-energy score
 
 --------------------------------------------------------------------------------
 KEY MODULES & FILES
 --------------------------------------------------------------------------------
 
 Backend (Python):
-  - api.py                FastAPI server, all REST endpoints
-  - inference.py          ONNX model inference logic
-  - utils/gradcam.py      GradCAM heatmap generation
-  - utils/preprocess.py   Image preprocessing
-  - utils/latex_renderer.py  LaTeX PDF rendering
-  - rag/pipeline.py       RAG orchestration
-  - rag/medical_reasoner.py  Medical content generation
-  - rag/disease_selector.py  Disease filtering
-  - rag/retriever.py      Knowledge base retrieval
-  - rag/report_agent.py   OpenAI report generation
-  - rag/prompt_templates.py  LLM prompt templates
-  - models/ctranscnn_1.onnx  Trained model weights
-  - templates/medical_report.tex  LaTeX report template
+  - api.py                    FastAPI server and REST endpoints
+  - inference.py              ONNX prediction logic
+  - utils/gradcam.py          Grad-CAM router + ONNX occlusion fallback
+  - utils/gradcam_pth.py      PyTorch `.pth` Grad-CAM implementation
+  - utils/preprocess.py       Image preprocessing
+  - utils/latex_renderer.py   LaTeX PDF rendering
+  - rag/pipeline.py           RAG orchestration
+  - rag/medical_reasoner.py    Medical content generation
+  - rag/disease_selector.py    Disease filtering
+  - rag/retriever.py          Knowledge base retrieval
+  - rag/report_agent.py       OpenAI report generation
+  - rag/prompt_templates.py    LLM prompt templates
+  - models/ctranscnn_1.onnx    ONNX inference model
+  - CTransCNN/models/epoch_45.pth  PyTorch checkpoint for Grad-CAM
+  - templates/medical_report.tex   LaTeX report template
+  - scripts/compare_gradcam_bbox.py  BBox vs Grad-CAM evaluation
 
 Frontend (Next.js, TypeScript):
-  - frontend/app/page.tsx         Main UI page
-  - frontend/app/layout.tsx       App layout
-  - frontend/components/          React UI components (Uploader, Viewer, Results, Report, etc.)
-  - frontend/lib/api.ts           API client (calls backend endpoints)
-  - frontend/lib/store.ts         Zustand state management
-  - frontend/globals.css          Global styles
+  - frontend/app/page.tsx     Main UI page
+  - frontend/app/layout.tsx   App layout
+  - frontend/components/      UI components for upload, results, explain, report
+  - frontend/lib/api.ts       API client
+  - frontend/lib/store.ts     Zustand state management
+  - frontend/globals.css      Global styles
 
 Outputs:
-  - outputs/uploads/              Uploaded images
-  - outputs/images/               Processed images
-  - outputs/reports/              Generated PDF reports
+  - outputs/uploads/          Uploaded images
+  - outputs/images/           Processed images
+  - outputs/reports/          Generated PDF reports
+  - ref/comparisons/          Grad-CAM vs bbox comparison outputs
 
 Knowledge Base:
-  - knowledge_base/medical_docs_backup.txt  Curated medical knowledge
+  - knowledge_base/medical_docs_backup.txt
 
 --------------------------------------------------------------------------------
 API ENDPOINTS (FastAPI)
 --------------------------------------------------------------------------------
-POST   /api/upload        Upload X-ray image
-POST   /api/inference     Run model prediction
-POST   /api/gradcam       Generate GradCAM heatmaps
-POST   /api/report        Generate medical report (PDF)
-GET    /api/download/{session_id}  Download PDF report
-GET    /api/session/{session_id}   Get session data
-DELETE /api/session/{session_id}   Delete session
+POST   /api/upload               Upload X-ray image
+POST   /api/inference            Run ONNX prediction
+POST   /api/gradcam              Generate Grad-CAM heatmap
+POST   /api/report               Generate medical report (PDF)
+GET    /api/download/{session_id} Download PDF report
+GET    /api/session/{session_id}  Get session data
+DELETE /api/session/{session_id}  Delete session
 
 --------------------------------------------------------------------------------
 TECHNOLOGY STACK
 --------------------------------------------------------------------------------
-Frontend:  Next.js, React, TypeScript, Zustand, Tailwind CSS
-Backend:   FastAPI, Python 3.10+, ONNX Runtime, OpenAI API, python-dotenv
-Explainability: GradCAM (custom, ONNX-compatible)
-Report Generation: LaTeX (pdflatex), custom templates
-RAG: OpenAI GPT-4o-mini, curated knowledge base
+Frontend:
+- Next.js
+- React
+- TypeScript
+- Zustand
+- Tailwind CSS
+
+Backend:
+- FastAPI
+- Python 3.10+
+- ONNX Runtime
+- PyTorch
+- MMCV / CTransCNN runtime in Docker
+- OpenAI API
+- python-dotenv
+
+Explainability:
+- PyTorch Grad-CAM for best-looking heatmaps
+- ONNX occlusion fallback for resilience
+
+Report Generation:
+- LaTeX / pdflatex
+- custom templates
+
+RAG:
+- OpenAI GPT-4o-mini
+- curated medical knowledge base
+
+--------------------------------------------------------------------------------
+RUNTIME / DEPLOYMENT
+--------------------------------------------------------------------------------
+Primary deployment pattern:
+- Frontend runs on macOS or any local machine
+- Backend runs in Docker on Linux-compatible runtime
+- Docker backend is used for CTransCNN / MMCV / PyTorch Grad-CAM
+
+Useful runtime notes:
+- `CTRANS_PYTHON` can point to an external CTransCNN Python interpreter
+- `LATEX_BIN` can override the PDF compiler path if needed
 
 --------------------------------------------------------------------------------
 DESIGN PRINCIPLES
 --------------------------------------------------------------------------------
-- Separation of concerns: clear API boundary between backend and frontend
-- Modular: each function (inference, explainability, reporting, retrieval) is isolated
-- Scalable: RESTful API, async backend, production-ready frontend
-- Explainable: GradCAM overlays, RAG-generated clinical context
-- Professional: LaTeX PDF reports, responsive UI, dark mode
+- Separation of concerns: prediction, explainability, reporting, evaluation
+- Modular: each function is isolated and easy to swap
+- Fast prediction path: ONNX stays the default inference engine
+- Better explainability: `.pth` Grad-CAM is used only when requested
+- Resilient fallback: ONNX occlusion keeps the app usable if PyTorch fails
+- Professional output: LaTeX PDF reports and polished UI
+- Evaluation-friendly: bbox comparison tooling for visual sanity checks
 
 --------------------------------------------------------------------------------
 PORTS & URLS
@@ -133,21 +214,31 @@ API Documentation:   http://localhost:8000/docs
 --------------------------------------------------------------------------------
 WORKFLOW SUMMARY
 --------------------------------------------------------------------------------
-1. User uploads X-ray → 2. Model inference → 3. GradCAM explainability → 4. RAG report → 5. LaTeX PDF → 6. Download
+1. Upload X-ray
+2. Run ONNX prediction
+3. Select disease
+4. Generate Grad-CAM with `.pth`
+5. Fall back to ONNX occlusion if needed
+6. Generate medical report
+7. Download PDF
 
 --------------------------------------------------------------------------------
 COMPETITIVE ADVANTAGES
 --------------------------------------------------------------------------------
-- GradCAM explainability (few teams have this)
-- Professional Next.js frontend (not basic Streamlit)
-- REST API architecture (scalable)
-- RAG-based medical reasoning (unique knowledge integration)
-- Multi-view visualization (original, heatmap, overlay)
-- Interactive UI (click diseases for explanations)
-- State management (Zustand)
-- Dark mode, responsive design
+- Fast ONNX inference for prediction
+- Higher-quality PyTorch Grad-CAM on demand
+- Dockerized Linux explainability runtime
+- Interactive disease-by-disease explanations
+- BBox vs Grad-CAM comparison tooling
+- RAG-based medical reasoning
+- Professional Next.js frontend
+- REST API architecture
+- Stateful UX with cached explainability results
 - Professional LaTeX PDF reports
 
 --------------------------------------------------------------------------------
-For detailed flow, see: project_flow_documentation.txt, SETUP_AND_RUN_V2.md, README_V2.md
+For detailed flow, see:
+- project_flow_documentation.txt
+- SETUP_AND_RUN_V2.md
+- README_V2.md
 ================================================================================
