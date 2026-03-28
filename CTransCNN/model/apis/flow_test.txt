@@ -1,0 +1,22 @@
+START
+  ↓
+Choose test mode:
+  ↓
+ ┌──────────────┬──────────────┐
+ ↓              ↓
+single_gpu_test  multi_gpu_test
+ ↓              ↓
+Model eval mode  Model eval mode
+ ↓              ↓
+Loop over data   Loop over data (distributed)
+ ↓              ↓
+Forward pass     Forward pass
+ ↓              ↓
+Store results    Store partial results
+ ↓              ↓
+Optional:        Rank 0 updates progress bar
+show / save
+ ↓              ↓
+Return results   Collect results (GPU or CPU)
+ ↓              ↓
+END            Merge + return results

@@ -1,11 +1,4 @@
 # CTransCNN: Combining Transformer and CNN in Multi-Label Medical Image Classification
-![demo](./picture/demo.gif)
-
-## model
-![model](./picture/model.png)
-
-
-![reslut](./picture/result.png)
 
 ## Abstract
 
@@ -13,31 +6,13 @@ Multilabel image classification aims to assign images to multiple possible label
 
 ## Dataset
 
-1. **ChestX-ray11**: In this study, 30,083 CXR image training data were used for multi-label sample classification due to computer limitations. Link: [kaggle.com/competitions/ranzcr-clip-catheter-line-classification/data](kaggle.com/competitions/ranzcr-clip-catheter-line-classification/data)
-
 2. **NIH ChestX-ray14**:  Due to computational limitations, this study performed multi-label sample classification on 51759 CXR images, named NIH ChestX-ray14, rather than the complete set of 112120 frontal images. Link: [nihcc.app.box.com/v/ChestXray-NIHCC](nihcc.app.box.com/v/ChestXray-NIHCC) 
 
    **ChestX-ray11** and **NIH ChestX-ray14** are shown in folders chest11 and chest14.
 
-3. The TCMTD is a multi-label classification task for 9 different TCM pathologies, conditions viz. ‘Qixu’ (qi deficiency), ‘Qiyu’ (qi stagnation), ‘Shire’ (damp heat), ‘Tanshi’ (phlegm damp), ‘Tebing’ (idiosyncratic), ‘Xueyu’ (blood stagnation), ‘Yinxu’ (yin deficiency), ‘Pinghe’ (balanced), and ‘Yangxu’ (yang deficiency), which is a multi-label classification task. **Due to ethical and personal privacy issues, this dataset is not publicly available.**
-
-## Citation
-
-We now have a related paper that you can cite in this repository 🤗 . [Download paper](https://www.sciencedirect.com/science/article/pii/S0950705123007803).
-
-```bash
-@article{WU2023111030,
-  title = {CTransCNN: Combining transformer and CNN in multilabel medical image classification},
-  journal = {Knowledge-Based Systems},
-  pages = {111030},
-  year = {2023},
-  issn = {0950-7051},
-  doi = {https://doi.org/10.1016/j.knosys.2023.111030},
-  url = {https://www.sciencedirect.com/science/article/pii/S0950705123007803},
-  author = {Xin Wu and Yue Feng and Hong Xu and Zhuosheng Lin and Tao Chen and Shengke Li and Shihan Qiu and Qichao Liu and Yuangang Ma and Shuangsheng Zhang}
-}
-```
 
 ## Thanks
 
-We implemented our models using the open source computer vision library [MMCV](github.com/open-mmlab/mmcv), which was developed by OpenMMLab. We would like to express our gratitude to the developers for their valuable contributions to the research community.
+MMCV Contributors. OpenMMLab Computer Vision Foundation. Released 2018-08-22.
+GitHub: https://github.com/open-mmlab/mmcv
+License: Apache-2.0

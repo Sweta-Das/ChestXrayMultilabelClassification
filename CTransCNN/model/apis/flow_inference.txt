@@ -1,0 +1,59 @@
+START
+  ↓
+Call init_model()
+  ↓
+Load config (file or object)
+  ↓
+Merge options (optional)
+  ↓
+Build model
+  ↓
+Load checkpoint (optional)
+  ↓
+Set classes (from checkpoint or default)
+  ↓
+Move model to device (CPU/GPU)
+  ↓
+Set model to eval mode
+  ↓
+Return model
+  ↓
+Call inference_model() / inference_model1()
+  ↓
+Get model config & device
+  ↓
+Is input image path or array?
+  ↓
+ ┌──────────────┬──────────────┐
+ ↓              ↓
+String         Array
+ ↓              ↓
+Add loader     Remove loader
+ ↓              ↓
+Create data dict
+  ↓
+Build test pipeline (Compose)
+  ↓
+Apply pipeline → preprocess image
+  ↓
+Collate batch
+  ↓
+If GPU → scatter data
+  ↓
+Forward pass (model inference)
+  ↓
+ ┌──────────────┬──────────────┐
+ ↓              ↓
+inference_model  inference_model1
+ ↓              ↓
+Loop all classes  Get max score
+ ↓              ↓
+Store all scores  Get predicted label
+ ↓              ↓
+Return full list  Return best result
+  ↓
+(Optional) show_result_pyplot()
+  ↓
+Display image with predictions
+  ↓
+END

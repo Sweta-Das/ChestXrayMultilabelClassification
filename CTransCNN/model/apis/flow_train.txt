@@ -1,0 +1,76 @@
+START
+  ↓
+(Optional) init_random_seed()
+  ↓
+(Optional) set_random_seed()
+  ↓
+Call train_model()
+  ↓
+Get logger
+  ↓
+Prepare dataset (ensure list)
+  ↓
+Build dataloader config
+  ↓
+Create dataloaders
+  ↓
+Distributed training?
+  ↓
+ ┌──────────────┬──────────────┐
+ ↓              ↓
+YES             NO
+ ↓              ↓
+Wrap distributed  Wrap non-distributed
+model (DDP)       model (DataParallel)
+  ↓
+Build optimizer
+  ↓
+Runner config exists?
+  ↓
+ NO → create default runner
+  ↓
+Handle IPU (if device == 'ipu')
+  ↓
+Build runner
+  ↓
+Set timestamp
+  ↓
+Configure optimizer hook:
+  ↓
+ ┌──────────────┬──────────────┬──────────────┐
+ ↓              ↓              ↓
+FP16           Distributed     Default
+Optimizer      optimizer       optimizer
+hook           hook            config
+  ↓
+Register training hooks
+  ↓
+Distributed + EpochRunner?
+  ↓
+ YES → add DistSamplerSeedHook
+  ↓
+Validation enabled?
+  ↓
+ ┌──────────────┬──────────────┐
+ ↓              ↓
+YES             NO
+ ↓
+Build validation dataset
+ ↓
+Build validation dataloader
+ ↓
+Choose eval hook (DistEvalHook / EvalHook)
+ ↓
+Register eval hook
+  ↓
+Resume training?
+  ↓
+ YES → resume
+ NO → load checkpoint?
+        ↓
+        YES → load checkpoint
+  ↓
+Start training:
+runner.run(data_loaders, workflow)
+  ↓
+END

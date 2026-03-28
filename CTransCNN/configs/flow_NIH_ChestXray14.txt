@@ -1,0 +1,88 @@
+START
+  ↓
+Load Config
+  ↓
+Build Model
+  ├─ Backbone: CTransCNN
+  ├─ Head: Multi-label classifier (14 classes)
+  └─ Loss: BCE + ASL Focal
+  ↓
+Load Dataset
+  ├─ Train / Val / Test splits
+  ├─ Annotation files
+  └─ Class labels
+  ↓
+Apply Data Pipelines
+
+TRAIN PIPELINE:
+  Load Image
+  → Resize (224x224)
+  → Random Flip
+  → Normalize
+  → To Tensor
+  → Collect (img, label)
+
+TEST PIPELINE:
+  Load Image
+  → Resize
+  → Normalize
+  → To Tensor
+  → Collect (img)
+
+  ↓
+Create DataLoaders
+  ↓
+Initialize Optimizer (AdamW)
+  ↓
+Initialize LR Scheduler (Cosine Annealing + Warmup)
+  ↓
+Initialize Runner (Epoch-based)
+
+========================
+TRAINING LOOP START
+========================
+
+FOR epoch in 1 → 300:
+    ↓
+  FOR each batch:
+        ↓
+    Forward Pass
+        ↓
+    Compute Loss (BCE + ASL Focal)
+        ↓
+    Backpropagation
+        ↓
+    Optimizer Step
+        ↓
+    Update Learning Rate
+        ↓
+    Logging (every 100 steps)
+
+    ↓
+  Evaluation (every epoch)
+        ↓
+    Compute Metrics:
+      mAP, CP, CR, CF1,
+      OP, OR, OF1, AUC
+
+    ↓
+  Save Checkpoint
+
+    ↓
+  Early Stopping Check
+        ↓
+    Is multi_auc improved?
+        ↓
+     YES → continue
+     NO → patience++
+        ↓
+     patience > 20?
+        ↓
+     YES → STOP TRAINING
+
+END LOOP
+
+  ↓
+Testing (optional)
+  ↓
+END
