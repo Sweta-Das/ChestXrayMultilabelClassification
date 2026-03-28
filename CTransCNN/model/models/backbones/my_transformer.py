@@ -302,6 +302,8 @@ class My_Transformer_Decoder(BaseBackbone):
 
         if not (isinstance(self.init_cfg, dict)
                 and self.init_cfg['type'] == 'Pretrained'):
+            if self.with_cls_token:
+                trunc_normal_(self.cls_token, std=0.02)
             trunc_normal_(self.pos_embed, std=0.02)
 
     def _prepare_pos_embed(self, state_dict, prefix, *args, **kwargs):

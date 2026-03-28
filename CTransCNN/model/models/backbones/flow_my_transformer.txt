@@ -1,0 +1,187 @@
+Arch. Summary:
+
+Image
+  ↓
+Patch Embedding
+  ↓
++ CLS Token
+  ↓
++ Positional Encoding
+  ↓
+Transformer Layers (N times)
+  ↓
+Feature Extraction
+  ↓
+Output (patch features + cls token)
+
+
+1. Patch Embedding
+- Image → patches → tokens
+- Instead of pixels, model sees [patch1, patch2, patch3, ...]
+
+2. CLS Token
+- Global representation of image
+- Used for classification & global context
+
+3. Positional Encoding
+- Adds spatial information
+- W/o it model doesn't know the patch order
+
+4. Dual Attention
+- Each layer has:
+    1. MultiheadAttention (global)
+    2. MSS_block (custom attention)
+- Not Standard ViT, but with enhanced attention
+
+5. Residual Connection
+- Every step: x = x + operation(...)
+Helps stability & gradient flow
+
+6. Output
+- Tuple of [patch_feature_map, cls_token]
+
+
+
+
+## MASTER FLOWCHART
+
+START
+  ↓
+Input image tensor (B, C, H, W)
+  ↓
+Patch Embedding (Conv → flatten)
+  ↓
+Get patch tokens + resolution
+  ↓
+Create CLS token
+  ↓
+Concatenate: [CLS + patch tokens]
+  ↓
+Add positional embedding
+  ↓
+Dropout
+  ↓
+Remove CLS token? (optional)
+  ↓
+FOR each TransformerDecoderLayer:
+    ↓
+  LayerNorm
+    ↓
+  Multi-head Attention (attn)
+    ↓
+  Residual Add
+    ↓
+  LayerNorm
+    ↓
+  MSS Attention (attn2)
+    ↓
+  Residual Add
+    ↓
+  LayerNorm
+    ↓
+  Feed Forward Network (FFN)
+    ↓
+  Residual Add
+END LOOP
+  ↓
+Final normalization (optional)
+  ↓
+Extract outputs at selected layers
+  ↓
+Split:
+  - patch tokens → feature map
+  - cls token → global feature
+  ↓
+Return outputs
+  ↓
+END
+
+
+
+### Transformer Decoder Layer Flowchart
+
+Input x
+  ↓
+Norm1
+  ↓
+MultiheadAttention
+  ↓
+Add residual (x + attn)
+  ↓
+Norm2
+  ↓
+MSS Attention (attn2)
+  ↓
+Add residual
+  ↓
+Norm3
+  ↓
+FFN (MLP)
+  ↓
+Add residual
+  ↓
+Output x
+
+
+
+### Model Initialization Flow
+
+START
+  ↓
+Select architecture (small/base/large/etc)
+  ↓
+Set:
+  - embed_dims
+  - num_layers
+  - num_heads
+  - feedforward_channels
+  ↓
+Create Patch Embedding layer
+  ↓
+Compute number of patches
+  ↓
+Initialize CLS token
+  ↓
+Initialize positional embedding
+  ↓
+Create N TransformerDecoderLayers
+  ↓
+Setup normalization (optional)
+  ↓
+END INIT
+
+
+
+### Layer Stack Flow
+
+Input tokens
+  ↓
+Layer 1
+  ↓
+Layer 2
+  ↓
+...
+  ↓
+Layer N
+  ↓
+Final normalization
+
+
+
+### Output Processing Flow
+
+For selected layers:
+  ↓
+Extract tokens
+  ↓
+If CLS token used:
+    ↓
+  Split:
+    - CLS token
+    - Patch tokens
+  ↓
+Reshape patch tokens → feature map
+(B, C, H, W)
+  ↓
+Return:
+  [patch_feature, cls_token]
