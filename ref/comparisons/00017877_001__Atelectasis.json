@@ -1,0 +1,14 @@
+{
+  "image_index": "00017877_001.png",
+  "label": "Atelectasis",
+  "canonical_label": "Atelectasis",
+  "bbox": {
+    "x": 660.067796610169,
+    "y": 569.78078654661,
+    "w": 200.677966101695,
+    "h": 78.1016949152542
+  },
+  "gradcam_probability": 0.4221290349960327,
+  "bbox_heatmap_energy_ratio": 0.0181753303816811,
+  "output_path": "/app/ref/comparisons/00017877_001__Atelectasis.png"
+}

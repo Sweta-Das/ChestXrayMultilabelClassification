@@ -1,0 +1,14 @@
+{
+  "image_index": "00021926_007.png",
+  "label": "Infiltration",
+  "canonical_label": "Infiltration",
+  "bbox": {
+    "x": 323.995767195767,
+    "y": 273.066666666667,
+    "w": 151.703703703704,
+    "h": 190.713227513228
+  },
+  "gradcam_probability": 0.07291284203529358,
+  "bbox_heatmap_energy_ratio": 0.03040430648244245,
+  "output_path": "/app/ref/comparisons/00021926_007__Infiltration.png"
+}

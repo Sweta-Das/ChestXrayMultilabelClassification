@@ -362,12 +362,14 @@ def cam_to_colored_heatmap_image(
 
     cam = np.asarray(grayscale_cam, dtype=np.float32)
     cam = np.maximum(cam, 0)
-    cam_max = float(cam.max())
+    cam_max = float(np.percentile(cam, 99.5))
     if cam_max > 0:
-        cam = cam / cam_max
+        cam = np.clip(cam / cam_max, 0, 1)
+
+    cam = np.power(cam, 0.88)
 
     cam = cv2.resize(cam, target_size, interpolation=cv2.INTER_CUBIC)
-    cam = cv2.GaussianBlur(cam, (0, 0), sigmaX=1.4, sigmaY=1.4)
+    cam = cv2.GaussianBlur(cam, (0, 0), sigmaX=1.0, sigmaY=1.0)
 
     cam_max = float(cam.max())
     if cam_max > 0:

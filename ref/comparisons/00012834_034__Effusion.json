@@ -1,0 +1,14 @@
+{
+  "image_index": "00012834_034.png",
+  "label": "Effusion",
+  "canonical_label": "Effusion",
+  "bbox": {
+    "x": 769.354497354497,
+    "y": 226.471957671958,
+    "w": 205.883597883598,
+    "h": 357.587301587302
+  },
+  "gradcam_probability": 0.3544059097766876,
+  "bbox_heatmap_energy_ratio": 0.040963321582014954,
+  "output_path": "/app/ref/comparisons/00012834_034__Effusion.png"
+}

@@ -1,0 +1,14 @@
+{
+  "image_index": "00026261_001.png",
+  "label": "Mass",
+  "canonical_label": "Mass",
+  "bbox": {
+    "x": 196.266666666667,
+    "y": 281.353489583333,
+    "w": 237.795555555556,
+    "h": 238.933333333333
+  },
+  "gradcam_probability": 0.3157787322998047,
+  "bbox_heatmap_energy_ratio": 0.028692213461228806,
+  "output_path": "/app/ref/comparisons/00026261_001__Mass.png"
+}

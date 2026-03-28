@@ -72,7 +72,7 @@ DISEASE_LABELS = [
 ]
 
 MODEL_PATH = "models/ctranscnn_1.onnx"
-MODEL_PATH1 = "models/epoch_72.pth"
+MODEL_PATH1 = "CTransCNN/models/epoch_45.pth"
 
 # Storage paths
 UPLOAD_DIR = Path("outputs/uploads")
