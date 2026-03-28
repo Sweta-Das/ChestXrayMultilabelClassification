@@ -100,6 +100,43 @@ Frontend: http://localhost:3000
 7. Click "Generate Medical Report"
 8. Click "Download Report PDF"
 
+PYTORCH GRADCAM SETUP
+═════════════════════
+
+- ONNX is used for inference and the occlusion fallback by default.
+- To enable PyTorch Grad-CAM from `models/epoch_72.pth`, create a separate CTransCNN Python environment from `CTransCNN/requirements.txt`.
+- On macOS, that CTransCNN env should use CPU `torch==1.12.1` and `mmcv==1.6.0` from the repo file, not the CUDA wheel pins from the original training machine.
+- Point the backend at that interpreter with:
+
+  `export CTRANS_PYTHON=/path/to/ctranscnn/python`
+
+- If `CTRANS_PYTHON` is not set, the backend keeps using the ONNX path and still works.
+
+DOCKER / LINUX ROUTE
+════════════════════
+
+If the native Mac CTransCNN environment keeps failing, run the backend in Docker:
+
+1. Build and start the Linux backend:
+
+   `docker compose up --build backend`
+
+2. Keep the frontend on your Mac in a second terminal:
+
+   `cd frontend && npm run dev`
+
+3. Point the frontend at the Docker backend if needed:
+
+   `export NEXT_PUBLIC_API_URL=http://localhost:8000`
+
+4. Open the app in your browser:
+
+   `http://localhost:3000`
+
+Notes:
+- The compose file pins `platform: linux/amd64` for better compatibility with `torch==1.12.1` and `mmcv==1.6.0`.
+- The container uses `pdflatex` in PATH. If report generation ever complains about missing LaTeX packages, install the extra TeX packages in `Dockerfile.backend` or switch the report flow to the ReportLab fallback.
+
 
 ════════════════════════════════════════════════════════════════════════════════
 

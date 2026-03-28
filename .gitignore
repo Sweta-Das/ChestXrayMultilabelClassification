@@ -19,6 +19,7 @@ CORNERSTONE/
 .env/
 .venv/
 venv/
+.venv*
 # --------------------
 # OS files
 # --------------------

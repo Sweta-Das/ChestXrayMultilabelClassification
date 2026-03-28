@@ -8,6 +8,10 @@ the PyTorch checkpoint cannot be reconstructed.
 
 import numpy as np
 import cv2
+import json
+import os
+import subprocess
+from pathlib import Path
 from PIL import Image
 import onnxruntime as ort
 from typing import Optional, Tuple
@@ -229,6 +233,25 @@ def generate_multi_disease_heatmaps(
     """Generate heatmaps, preferring PyTorch Grad-CAM when available."""
 
     if use_pytorch and pth_model_path:
+        external_python = os.environ.get("CTRANS_PYTHON")
+        if external_python:
+            try:
+                return _run_external_pth_gradcam(
+                    python_executable=external_python,
+                    model_path=pth_model_path,
+                    image_file=image_file,
+                    predictions=predictions,
+                    disease_labels=disease_labels,
+                    top_k=top_k,
+                    threshold=threshold,
+                    target_index=target_index,
+                )
+            except Exception as exc:
+                print(
+                    "External PyTorch Grad-CAM runner failed, falling back to in-process path: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+
         try:
             from utils.gradcam_pth import generate_multi_disease_heatmaps as generate_pth_heatmaps
 
@@ -256,6 +279,52 @@ def generate_multi_disease_heatmaps(
         threshold=threshold,
         target_index=target_index,
     )
+
+
+def _run_external_pth_gradcam(
+    python_executable: str,
+    model_path: str,
+    image_file,
+    predictions: list,
+    disease_labels: list,
+    top_k: int,
+    threshold: float,
+    target_index: Optional[int],
+) -> dict:
+    """Run the PyTorch Grad-CAM generator in another Python environment."""
+
+    script_path = Path(__file__).resolve().parent / "gradcam_pth.py"
+    cmd = [
+        python_executable,
+        str(script_path),
+        "--model-path",
+        str(model_path),
+        "--image-file",
+        str(image_file),
+        "--predictions",
+        json.dumps(predictions),
+        "--disease-labels",
+        json.dumps(disease_labels),
+        "--top-k",
+        str(top_k),
+        "--threshold",
+        str(threshold),
+    ]
+    if target_index is not None:
+        cmd.extend(["--target-index", str(target_index)])
+
+    completed = subprocess.run(cmd, capture_output=True, text=True)
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f"Grad-CAM subprocess failed with exit code {completed.returncode}: "
+            f"{completed.stderr.strip()}"
+        )
+
+    output = completed.stdout.strip()
+    if not output:
+        raise RuntimeError("Grad-CAM subprocess produced no output")
+
+    return json.loads(output)
 
 
 # ── helpers ──────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@ name = "ctrans-cnn1"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "annotated-doc==0.0.4",
     "annotated-types==0.7.0",
@@ -49,3 +49,6 @@ dependencies = [
     "typing-inspection==0.4.2",
     "uvicorn==0.42.0",
 ]
+
+[tool.uv.extra-build-dependencies]
+mmcv-full = ["setuptools"]

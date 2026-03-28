@@ -8,6 +8,8 @@ generate Grad-CAM for the selected disease index.
 from __future__ import annotations
 
 import base64
+import argparse
+import json
 import io
 from functools import lru_cache
 from pathlib import Path
@@ -100,9 +102,9 @@ def load_model_from_checkpoint(
     if model_factory is None:
         cache_key = f"{str(model_path)}::{str(device)}"
         if cache_key in _CACHED_MODEL_KEYS:
-            print(f"Reusing cached Grad-CAM model: {cache_key}")
+            print(f"Reusing cached Grad-CAM model: {cache_key}", file=sys.stderr)
         else:
-            print(f"Loading Grad-CAM model into cache: {cache_key}")
+            print(f"Loading Grad-CAM model into cache: {cache_key}", file=sys.stderr)
         load_errors = []
         try:
             model = _load_ctranscnn_model_cached(str(model_path), str(device))
@@ -110,7 +112,8 @@ def load_model_from_checkpoint(
             load_errors.append(f"config-based load: {type(exc).__name__}: {exc}")
             print(
                 "CTransCNN config-based load failed, falling back to generic checkpoint load: "
-                f"{type(exc).__name__}: {exc}"
+                f"{type(exc).__name__}: {exc}",
+                file=sys.stderr,
             )
             try:
                 model = _load_model_from_checkpoint_cached(str(model_path), str(device))
@@ -171,11 +174,11 @@ def _load_ctranscnn_model_cached(model_path: str, device_str: str) -> nn.Module:
         from mmcv.runner import load_checkpoint
         from model.models import build_classifier
     except ImportError as exc:
-        raise RuntimeError(
-            "Missing CTransCNN runtime dependencies. Install the packages "
-            "from CTransCNN/requirements.txt, especially `torch` and "
-            "`mmcv-full`, before using the PyTorch Grad-CAM path."
-        ) from exc
+            raise RuntimeError(
+                "Missing CTransCNN runtime dependencies. Install the packages "
+                "from CTransCNN/requirements.txt, especially `torch` and "
+                "`mmcv`, before using the PyTorch Grad-CAM path."
+            ) from exc
 
     if not CTRANS_CNN_CONFIG.exists():
         raise RuntimeError(f"Missing CTransCNN config file: {CTRANS_CNN_CONFIG}")
@@ -345,3 +348,33 @@ def pil_to_base64(pil_image: Image.Image) -> str:
 def array_to_base64(array: np.ndarray) -> str:
     pil_image = Image.fromarray(array.astype(np.uint8))
     return pil_to_base64(pil_image)
+
+
+def _cli():
+    parser = argparse.ArgumentParser(description="Generate CTransCNN Grad-CAM heatmaps")
+    parser.add_argument("--model-path", required=True)
+    parser.add_argument("--image-file", required=True)
+    parser.add_argument("--predictions", required=True, help="JSON list of probabilities")
+    parser.add_argument("--disease-labels", required=True, help="JSON list of labels")
+    parser.add_argument("--top-k", type=int, default=5)
+    parser.add_argument("--threshold", type=float, default=0.1)
+    parser.add_argument("--target-index", type=int, default=None)
+    args = parser.parse_args()
+
+    predictions = json.loads(args.predictions)
+    disease_labels = json.loads(args.disease_labels)
+
+    result = generate_multi_disease_heatmaps(
+        model_path=args.model_path,
+        image_file=args.image_file,
+        predictions=predictions,
+        disease_labels=disease_labels,
+        top_k=args.top_k,
+        threshold=args.threshold,
+        target_index=args.target_index,
+    )
+    print(json.dumps(result))
+
+
+if __name__ == "__main__":
+    _cli()

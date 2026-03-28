@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -20,7 +21,8 @@ def render_latex_report(template_path, output_dir, context, filename="medical_re
         f.write(template)
 
     # Run LaTeX twice
-    latex_cmd = ["/Library/TeX/texbin/pdflatex", "-interaction=nonstopmode", tex_path.name]
+    latex_bin = os.environ.get("LATEX_BIN", "pdflatex")
+    latex_cmd = [latex_bin, "-interaction=nonstopmode", tex_path.name]
 
     for _ in range(2):
         result = subprocess.run(

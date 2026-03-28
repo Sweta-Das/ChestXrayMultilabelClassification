@@ -243,6 +243,20 @@ async def generate_gradcam(request: GradCAMRequest):
             status_code=400, 
             detail="Run inference first before generating GradCAM"
         )
+
+    cache_bucket = session.setdefault("gradcam_cache", {})
+    if request.disease_index is not None:
+        cache_key = f"disease:{request.disease_index}"
+    else:
+        cache_key = f"topk:{request.top_k}:threshold:{request.threshold}"
+
+    cached_heatmaps = cache_bucket.get(cache_key)
+    if cached_heatmaps is not None:
+        session["gradcam"] = cached_heatmaps
+        return GradCAMResponse(
+            session_id=request.session_id,
+            heatmaps=cached_heatmaps
+        )
     
     # Generate GradCAM heatmaps
     try:
@@ -261,6 +275,7 @@ async def generate_gradcam(request: GradCAMRequest):
 
     # Store in session
     session["gradcam"] = heatmaps
+    cache_bucket[cache_key] = heatmaps
     
     return GradCAMResponse(
         session_id=request.session_id,
