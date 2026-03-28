@@ -41,8 +41,16 @@ class MultiLabelLinearClsHead(MultiLabelClsHead):
         self.fc = nn.Linear(self.in_channels, self.num_classes)
 
     def pre_logits(self, x):
-        if isinstance(x, tuple):
-            x = x[-1]
+        # The transformer-only backbone returns nested outputs:
+        # (stage_outputs,) -> [patch_tokens, cls_token].
+        # Unwrap both tuple/list containers and keep the class token tensor.
+        while isinstance(x, (tuple, list)):
+            if len(x) == 0:
+                raise ValueError('Empty backbone output is not supported')
+            if len(x) == 2 and torch.is_tensor(x[0]) and torch.is_tensor(x[1]):
+                x = x[1]
+            else:
+                x = x[-1]
         return x
 
     def forward_train(self, x, gt_label, **kwargs):
