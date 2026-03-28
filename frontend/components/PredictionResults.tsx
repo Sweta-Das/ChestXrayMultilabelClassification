@@ -15,7 +15,7 @@ export default function PredictionResults() {
           Analysis Results
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Click on a disease to view its GradCAM heatmap
+          Select a disease, then click Explain to generate its GradCAM heatmap
         </p>
       </div>
 

@@ -1,15 +1,16 @@
-# utils/gradcam.py
-"""
-Occlusion-based saliency maps for ONNX models.
-Provides visual explainability by highlighting important regions in chest X-rays.
-Uses the existing ctranscnn_1.onnx model — no extra model needed.
+"""Explainability helpers for chest X-ray predictions.
+
+The preferred path is PyTorch Grad-CAM from `utils/gradcam_pth.py`, which is
+loaded only when the user asks for an explanation. The legacy ONNX occlusion
+map remains available as a fallback so the API can still produce something if
+the PyTorch checkpoint cannot be reconstructed.
 """
 
 import numpy as np
 import cv2
 from PIL import Image
 import onnxruntime as ort
-from typing import Tuple
+from typing import Optional, Tuple
 import io
 import base64
 
@@ -102,6 +103,36 @@ class OcclusionSaliency:
         return heatmap
 
 
+def _select_targets(
+    predictions: list,
+    disease_labels: list,
+    target_index: Optional[int],
+    top_k: int,
+    threshold: float,
+):
+    scored = sorted(
+        [
+            (label, float(prob), idx)
+            for idx, (label, prob) in enumerate(zip(disease_labels, predictions))
+        ],
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    if not scored:
+        return []
+
+    if target_index is not None:
+        if target_index < 0 or target_index >= len(disease_labels):
+            raise ValueError(f"target_index {target_index} is out of range")
+        label = disease_labels[target_index]
+        prob = float(predictions[target_index])
+        return [(label, prob, target_index)]
+
+    selected = [item for item in scored[:top_k] if item[1] >= threshold]
+    return selected or [scored[0]]
+
+
 def apply_colormap_and_overlay(
     heatmap: np.ndarray,
     original_image: np.ndarray,
@@ -125,18 +156,19 @@ def apply_colormap_and_overlay(
     return overlayed
 
 
-def generate_multi_disease_heatmaps(
+def generate_multi_disease_heatmaps_onnx(
     model_path: str,
     image_file,
     predictions: list,
     disease_labels: list,
     top_k: int = 5,
     threshold: float = 0.1,
+    target_index: Optional[int] = None,
 ) -> dict:
     """
-    Generate saliency heatmaps for top predicted diseases.
+    Generate occlusion heatmaps with the existing ONNX model.
 
-    Uses the *same* ONNX model already used for inference — no extra weights.
+    This is the fallback path when the PyTorch checkpoint is unavailable.
 
     Returns dict keyed by disease name with base64-encoded images.
     """
@@ -152,18 +184,13 @@ def generate_multi_disease_heatmaps(
     # Init saliency generator
     saliency = OcclusionSaliency(model_path)
 
-    # Pick diseases to visualize
-    scored = sorted(
-        [
-            (label, prob, idx)
-            for idx, (label, prob) in enumerate(zip(disease_labels, predictions))
-        ],
-        key=lambda x: x[1],
-        reverse=True,
+    selected = _select_targets(
+        predictions=predictions,
+        disease_labels=disease_labels,
+        target_index=target_index,
+        top_k=top_k,
+        threshold=threshold,
     )
-    selected = [(l, p, i) for l, p, i in scored[:top_k] if p >= threshold]
-    if not selected:
-        selected = [scored[0]]
 
     results = {}
     for disease_label, prob, class_idx in selected:
@@ -186,6 +213,49 @@ def generate_multi_disease_heatmaps(
         }
 
     return results
+
+
+def generate_multi_disease_heatmaps(
+    model_path: str,
+    image_file,
+    predictions: list,
+    disease_labels: list,
+    top_k: int = 5,
+    threshold: float = 0.1,
+    target_index: Optional[int] = None,
+    use_pytorch: bool = True,
+    pth_model_path: Optional[str] = None,
+) -> dict:
+    """Generate heatmaps, preferring PyTorch Grad-CAM when available."""
+
+    if use_pytorch and pth_model_path:
+        try:
+            from utils.gradcam_pth import generate_multi_disease_heatmaps as generate_pth_heatmaps
+
+            return generate_pth_heatmaps(
+                model_path=pth_model_path,
+                image_file=image_file,
+                predictions=predictions,
+                disease_labels=disease_labels,
+                top_k=top_k,
+                threshold=threshold,
+                target_index=target_index,
+            )
+        except Exception as exc:
+            print(
+                "PyTorch Grad-CAM unavailable, falling back to ONNX occlusion: "
+                f"{type(exc).__name__}: {exc}"
+            )
+
+    return generate_multi_disease_heatmaps_onnx(
+        model_path=model_path,
+        image_file=image_file,
+        predictions=predictions,
+        disease_labels=disease_labels,
+        top_k=top_k,
+        threshold=threshold,
+        target_index=target_index,
+    )
 
 
 # ── helpers ──────────────────────────────────────────────────────────────

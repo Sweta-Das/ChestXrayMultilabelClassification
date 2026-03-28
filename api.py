@@ -101,6 +101,7 @@ class GradCAMRequest(BaseModel):
     session_id: str
     top_k: Optional[int] = 5
     threshold: Optional[float] = 0.1
+    disease_index: Optional[int] = None
 
 
 class GradCAMResponse(BaseModel):
@@ -251,7 +252,9 @@ async def generate_gradcam(request: GradCAMRequest):
             predictions=session["probs_list"],
             disease_labels=DISEASE_LABELS,
             top_k=request.top_k,
-            threshold=request.threshold
+            threshold=request.threshold,
+            target_index=request.disease_index,
+            pth_model_path=MODEL_PATH1,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"GradCAM generation failed: {str(e)}")
@@ -1100,4 +1103,3 @@ if __name__ == "__main__":
 #         port=8000,
 #         reload=True
 #     )
-

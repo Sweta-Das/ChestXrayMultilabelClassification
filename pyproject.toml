@@ -17,6 +17,7 @@ dependencies = [
     "filelock==3.25.2",
     "flatbuffers==25.12.19",
     "fsspec==2026.2.0",
+    "grad-cam>=1.5.5",
     "h11==0.16.0",
     "httpcore==1.0.9",
     "httpx==0.28.1",

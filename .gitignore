@@ -30,6 +30,7 @@ Thumbs.db
 # --------------------
 *.pdf
 *.onnx
+*.pkl
 *.pth
 *.log
 outputs/

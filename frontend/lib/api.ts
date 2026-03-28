@@ -78,6 +78,7 @@ export async function runInference(sessionId: string): Promise<PredictionRespons
  */
 export async function generateGradCAM(
   sessionId: string,
+  diseaseIndex?: number,
   topK: number = 5,
   threshold: number = 0.1
 ): Promise<GradCAMResponse> {
@@ -92,6 +93,7 @@ export async function generateGradCAM(
       session_id: sessionId,
       top_k: topK,
       threshold: threshold,
+      disease_index: diseaseIndex,
     }),
   });
 
