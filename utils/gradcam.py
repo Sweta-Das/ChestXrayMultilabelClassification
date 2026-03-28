@@ -204,7 +204,7 @@ def generate_multi_disease_heatmaps_onnx(
         )
 
         original_b64 = pil_to_base64(original_pil)
-        heatmap_colored = apply_colormap_to_heatmap(heatmap)
+        heatmap_colored = cam_to_colored_heatmap_image(heatmap)
         heatmap_b64 = array_to_base64(heatmap_colored)
         overlay = apply_colormap_and_overlay(heatmap, original_np, alpha=0.5)
         overlay_b64 = array_to_base64(overlay)
@@ -352,6 +352,31 @@ def pil_to_base64(pil_image: Image.Image) -> str:
 def array_to_base64(array: np.ndarray) -> str:
     pil_image = Image.fromarray(array.astype(np.uint8))
     return pil_to_base64(pil_image)
+
+
+def cam_to_colored_heatmap_image(
+    grayscale_cam: np.ndarray,
+    target_size: Tuple[int, int] = (224, 224),
+    colormap: int = cv2.COLORMAP_TURBO,
+) -> np.ndarray:
+    """Convert a CAM mask into a smoother, colorized heatmap image."""
+
+    cam = np.asarray(grayscale_cam, dtype=np.float32)
+    cam = np.maximum(cam, 0)
+    cam_max = float(cam.max())
+    if cam_max > 0:
+        cam = cam / cam_max
+
+    cam = cv2.resize(cam, target_size, interpolation=cv2.INTER_CUBIC)
+    cam = cv2.GaussianBlur(cam, (0, 0), sigmaX=1.4, sigmaY=1.4)
+
+    cam_max = float(cam.max())
+    if cam_max > 0:
+        cam = cam / cam_max
+
+    heatmap_uint8 = np.clip(cam * 255.0, 0, 255).astype(np.uint8)
+    heatmap_colored = cv2.applyColorMap(heatmap_uint8, colormap)
+    return cv2.cvtColor(heatmap_colored, cv2.COLOR_BGR2RGB)
 
 
 

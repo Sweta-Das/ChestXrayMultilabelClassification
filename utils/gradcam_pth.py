@@ -17,6 +17,7 @@ import sys
 from typing import Callable, Optional, Sequence
 
 import numpy as np
+import cv2
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -323,6 +324,8 @@ def generate_multi_disease_heatmaps(
             targets=[ClassifierOutputTarget(class_idx)],
         )[0, :]
 
+        heatmap_colored = cam_to_colored_heatmap_image(grayscale_cam)
+
         visualization = show_cam_on_image(
             original_np.astype(np.float32) / 255.0,
             grayscale_cam,
@@ -332,7 +335,7 @@ def generate_multi_disease_heatmaps(
         results[label] = {
             "probability": float(prob),
             "original": pil_to_base64(original_pil),
-            "heatmap": array_to_base64((grayscale_cam * 255).astype(np.uint8)),
+            "heatmap": array_to_base64(heatmap_colored),
             "overlay": array_to_base64(visualization),
         }
 
@@ -348,6 +351,31 @@ def pil_to_base64(pil_image: Image.Image) -> str:
 def array_to_base64(array: np.ndarray) -> str:
     pil_image = Image.fromarray(array.astype(np.uint8))
     return pil_to_base64(pil_image)
+
+
+def cam_to_colored_heatmap_image(
+    grayscale_cam: np.ndarray,
+    target_size: tuple[int, int] = (224, 224),
+    colormap: int = cv2.COLORMAP_TURBO,
+) -> np.ndarray:
+    """Convert a CAM mask into a smoother, colorized heatmap image."""
+
+    cam = np.asarray(grayscale_cam, dtype=np.float32)
+    cam = np.maximum(cam, 0)
+    cam_max = float(cam.max())
+    if cam_max > 0:
+        cam = cam / cam_max
+
+    cam = cv2.resize(cam, target_size, interpolation=cv2.INTER_CUBIC)
+    cam = cv2.GaussianBlur(cam, (0, 0), sigmaX=1.4, sigmaY=1.4)
+
+    cam_max = float(cam.max())
+    if cam_max > 0:
+        cam = cam / cam_max
+
+    heatmap_uint8 = np.clip(cam * 255.0, 0, 255).astype(np.uint8)
+    heatmap_colored = cv2.applyColorMap(heatmap_uint8, colormap)
+    return cv2.cvtColor(heatmap_colored, cv2.COLOR_BGR2RGB)
 
 
 def _cli():

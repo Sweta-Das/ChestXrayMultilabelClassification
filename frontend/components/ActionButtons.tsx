@@ -9,11 +9,10 @@ export default function ActionButtons() {
     sessionId,
     predictions,
     selectedDisease,
-    gradcamData,
     reportData,
     setLoading,
     setPredictions,
-    setGradcamData,
+    mergeGradcamData,
     setReportData,
     setSelectedDisease,
   } = useStore();
@@ -48,7 +47,7 @@ export default function ActionButtons() {
     setLoading(true, 'Generating explainability heatmaps...');
     try {
       const response = await generateGradCAM(sessionId, diseaseIndex >= 0 ? diseaseIndex : 0, 5, 0.1);
-      setGradcamData(response.heatmaps);
+      mergeGradcamData(response.heatmaps);
     } catch (error) {
       console.error('GradCAM failed:', error);
       alert('Heatmap generation failed. Please try again.');
@@ -96,7 +95,7 @@ export default function ActionButtons() {
       )}
 
       {/* Generate GradCAM */}
-      {predictions && !gradcamData && (
+      {predictions && selectedDisease && (
         <button
           onClick={handleGenerateGradCAM}
           className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-lg"

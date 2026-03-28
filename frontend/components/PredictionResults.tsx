@@ -1,10 +1,39 @@
 // components/PredictionResults.tsx
 'use client';
 
+import { generateGradCAM } from '@/lib/api';
 import { useStore } from '@/lib/store';
 
 export default function PredictionResults() {
-  const { predictions, topDiseases, selectedDisease, setSelectedDisease } = useStore();
+  const {
+    sessionId,
+    predictions,
+    topDiseases,
+    selectedDisease,
+    gradcamData,
+    setSelectedDisease,
+    mergeGradcamData,
+    setLoading,
+  } = useStore();
+
+  const handleSelectDisease = async (disease: string) => {
+    setSelectedDisease(disease);
+
+    if (!sessionId || !predictions || gradcamData?.[disease]) {
+      return;
+    }
+
+    const diseaseIndex = Object.keys(predictions).findIndex((name) => name === disease);
+    setLoading(true, `Loading heatmap for ${disease}...`);
+    try {
+      const response = await generateGradCAM(sessionId, diseaseIndex >= 0 ? diseaseIndex : 0, 1, 0.1);
+      mergeGradcamData(response.heatmaps);
+    } catch (error) {
+      console.error('GradCAM fetch failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!predictions) return null;
 
@@ -24,7 +53,7 @@ export default function PredictionResults() {
         {topDiseases.map((item) => (
           <div
             key={item.disease}
-            onClick={() => setSelectedDisease(item.disease)}
+            onClick={() => handleSelectDisease(item.disease)}
             className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
               selectedDisease === item.disease
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'

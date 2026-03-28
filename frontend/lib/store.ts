@@ -30,6 +30,7 @@ interface AppState {
   selectedDisease: string | null;
   heatmapOpacity: number;
   setGradcamData: (data: Record<string, any>) => void;
+  mergeGradcamData: (data: Record<string, any>) => void;
   setSelectedDisease: (disease: string | null) => void;
   setHeatmapOpacity: (opacity: number) => void;
 
@@ -70,6 +71,13 @@ export const useStore = create<AppState>((set) => ({
   selectedDisease: null,
   heatmapOpacity: 0.5,
   setGradcamData: (data) => set({ gradcamData: data }),
+  mergeGradcamData: (data) =>
+    set((state) => ({
+      gradcamData: {
+        ...(state.gradcamData || {}),
+        ...data,
+      },
+    })),
   setSelectedDisease: (disease) => set({ selectedDisease: disease }),
   setHeatmapOpacity: (opacity) => set({ heatmapOpacity: opacity }),
 
