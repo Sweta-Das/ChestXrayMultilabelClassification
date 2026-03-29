@@ -8,7 +8,8 @@
     "w": 78.1016949152542,
     "h": 40.135593220339
   },
-  "gradcam_probability": 0.2174418568611145,
-  "bbox_heatmap_energy_ratio": 0.004613380360641302,
-  "output_path": "/app/ref/comparisons/00000865_006__Atelectasis.png"
+  "gradcam_probability": 0.429643839597702,
+  "bbox_heatmap_energy_ratio": 0.0028564799904457695,
+  "patient_age": 43.0,
+  "output_path": "/Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification/ref/comparisons/00000865_006__Atelectasis.png"
 }

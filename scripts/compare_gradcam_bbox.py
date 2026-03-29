@@ -1,4 +1,4 @@
-"""Create side-by-side NIH bbox vs Grad-CAM comparison images.
+"""Create side-by-side NIH bbox vs MedFusionNet Grad-CAM comparison images.
 
 This script reads the bbox annotations from `ref/ref.csv`, loads the matching
 X-ray image, draws the ground-truth bounding box, runs model inference, and
@@ -62,10 +62,14 @@ class Sample:
     bbox_y: float
     bbox_w: float
     bbox_h: float
+    age: Optional[float]
 
     @property
     def canonical_label(self) -> str:
         return LABEL_ALIASES.get(self.finding_label, self.finding_label)
+
+    def effective_age(self, default_age: float) -> float:
+        return self.age if self.age is not None else default_age
 
 
 def parse_args() -> argparse.Namespace:
@@ -87,6 +91,12 @@ def parse_args() -> argparse.Namespace:
         "--model-path",
         default="models/best_medfusionnet.pth",
         help="Path to the PyTorch checkpoint used for Grad-CAM.",
+    )
+    parser.add_argument(
+        "--age",
+        type=float,
+        default=48.0,
+        help="Patient age passed to MedFusionNet inference and Grad-CAM.",
     )
     parser.add_argument(
         "--limit",
@@ -129,6 +139,13 @@ def load_samples(csv_path: Path) -> list[Sample]:
             if len(row) < 6:
                 continue
             try:
+                age_value = None
+                if len(row) >= 7:
+                    age_text = row[6].strip()
+                    if age_text:
+                        age_digits = "".join(ch for ch in age_text if ch.isdigit() or ch == ".")
+                        if age_digits:
+                            age_value = float(age_digits)
                 sample = Sample(
                     image_index=row[0].strip(),
                     finding_label=row[1].strip(),
@@ -136,6 +153,7 @@ def load_samples(csv_path: Path) -> list[Sample]:
                     bbox_y=float(row[3]),
                     bbox_w=float(row[4]),
                     bbox_h=float(row[5]),
+                    age=age_value,
                 )
             except ValueError:
                 continue
@@ -276,9 +294,10 @@ def main() -> None:
             continue
 
         class_index = DISEASE_LABELS.index(label)
+        age = sample.effective_age(args.age)
 
         try:
-            probs = predict(str(image_path))
+            probs = predict(str(image_path), age=age)
             heatmaps = generate_pth_heatmaps(
                 model_path=args.model_path,
                 image_file=str(image_path),
@@ -287,6 +306,7 @@ def main() -> None:
                 target_index=class_index,
                 top_k=1,
                 threshold=0.0,
+                age=age,
             )
         except Exception as exc:
             print(f"Skipping {sample.image_index}: {type(exc).__name__}: {exc}", file=sys.stderr)
@@ -357,6 +377,7 @@ def main() -> None:
             },
             "gradcam_probability": result["probability"],
             "bbox_heatmap_energy_ratio": bbox_score,
+            "patient_age": age,
             "output_path": str(out_path),
         }
         (output_dir / f"{Path(sample.image_index).stem}__{label}.json").write_text(

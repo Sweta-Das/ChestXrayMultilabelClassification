@@ -8,7 +8,8 @@
     "w": 205.883597883598,
     "h": 357.587301587302
   },
-  "gradcam_probability": 0.3544059097766876,
-  "bbox_heatmap_energy_ratio": 0.040963321582014954,
-  "output_path": "/app/ref/comparisons/00012834_034__Effusion.png"
+  "gradcam_probability": 0.6424150466918945,
+  "bbox_heatmap_energy_ratio": 0.08976550622650253,
+  "patient_age": 33.0,
+  "output_path": "/Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification/ref/comparisons/00012834_034__Effusion.png"
 }

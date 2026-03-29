@@ -8,7 +8,8 @@
     "w": 151.703703703704,
     "h": 190.713227513228
   },
-  "gradcam_probability": 0.07291284203529358,
-  "bbox_heatmap_energy_ratio": 0.03040430648244245,
-  "output_path": "/app/ref/comparisons/00021926_007__Infiltration.png"
+  "gradcam_probability": 0.526803731918335,
+  "bbox_heatmap_energy_ratio": 0.04844155366244089,
+  "patient_age": 12.0,
+  "output_path": "/Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification/ref/comparisons/00021926_007__Infiltration.png"
 }

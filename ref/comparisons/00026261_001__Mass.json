@@ -8,7 +8,8 @@
     "w": 237.795555555556,
     "h": 238.933333333333
   },
-  "gradcam_probability": 0.3157787322998047,
-  "bbox_heatmap_energy_ratio": 0.028692213461228806,
-  "output_path": "/app/ref/comparisons/00026261_001__Mass.png"
+  "gradcam_probability": 0.6079280376434326,
+  "bbox_heatmap_energy_ratio": 0.045217268573243236,
+  "patient_age": 46.0,
+  "output_path": "/Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification/ref/comparisons/00026261_001__Mass.png"
 }

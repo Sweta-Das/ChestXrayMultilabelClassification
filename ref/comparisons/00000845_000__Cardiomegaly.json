@@ -8,7 +8,8 @@
     "w": 454.027513227513,
     "h": 424.77037037037
   },
-  "gradcam_probability": 0.3857225179672241,
-  "bbox_heatmap_energy_ratio": 0.1478634038828412,
-  "output_path": "/app/ref/comparisons/00000845_000__Cardiomegaly.png"
+  "gradcam_probability": 0.6706817150115967,
+  "bbox_heatmap_energy_ratio": 0.2560684367020691,
+  "patient_age": 65.0,
+  "output_path": "/Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification/ref/comparisons/00000845_000__Cardiomegaly.png"
 }
