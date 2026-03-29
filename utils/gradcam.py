@@ -229,6 +229,7 @@ def generate_multi_disease_heatmaps(
     target_index: Optional[int] = None,
     use_pytorch: bool = True,
     pth_model_path: Optional[str] = None,
+    age: Optional[float] = None,
 ) -> dict:
     """Generate heatmaps, preferring PyTorch Grad-CAM when available."""
 
@@ -245,6 +246,7 @@ def generate_multi_disease_heatmaps(
                     top_k=top_k,
                     threshold=threshold,
                     target_index=target_index,
+                    age=age,
                 )
             except Exception as exc:
                 print(
@@ -263,6 +265,7 @@ def generate_multi_disease_heatmaps(
                 top_k=top_k,
                 threshold=threshold,
                 target_index=target_index,
+                age=age,
             )
         except Exception as exc:
             print(
@@ -290,6 +293,7 @@ def _run_external_pth_gradcam(
     top_k: int,
     threshold: float,
     target_index: Optional[int],
+    age: Optional[float] = None,
 ) -> dict:
     """Run the PyTorch Grad-CAM generator in another Python environment."""
 
@@ -312,6 +316,8 @@ def _run_external_pth_gradcam(
     ]
     if target_index is not None:
         cmd.extend(["--target-index", str(target_index)])
+    if age is not None:
+        cmd.extend(["--age", str(age)])
 
     completed = subprocess.run(cmd, capture_output=True, text=True)
     if completed.returncode != 0:

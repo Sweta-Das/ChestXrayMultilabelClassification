@@ -85,7 +85,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--model-path",
-        default="CTransCNN/models/epoch_45.pth",
+        default="models/best_medfusionnet.pth",
         help="Path to the PyTorch checkpoint used for Grad-CAM.",
     )
     parser.add_argument(

@@ -24,11 +24,11 @@ Your system is ready! All packages are already installed:
 ════════════════════════════════════════════════════════════════════════════════
 
 
-TERMINAL 1 - BACKEND (Use python3):
+TERMINAL 1 - BACKEND (Use Python 3.10):
 ────────────────────────────────────────────────────────────────────────────
 
-cd /home/mp/Desktop/CTrans-CNN1
-source venv/bin/activate
+cd /Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification
+source .venv-medfusion/bin/activate
 python3 api.py
 
 Expected output:
@@ -78,9 +78,9 @@ Frontend: http://localhost:3000
 ✅ CHECKLIST BEFORE YOU START
 ════════════════════════════════════════════════════════════════════════════════
 
-□ Terminal 1: cd /home/mp/Desktop/CTrans-CNN1
-□ Terminal 1: source venv/bin/activate
-□ Terminal 2: cd /home/mp/Desktop/CTrans-CNN1/frontend
+□ Terminal 1: cd /Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification
+□ Terminal 1: source .venv-medfusion/bin/activate
+□ Terminal 2: cd /Users/swetadas/Documents/Courses/Masters/IITD/CornerstoneProject/ChestXrayMultilabelClassification/frontend
 □ Ports 8000 and 3000 are free (not in use)
 □ Internet connection is active (for OpenAI API)
 
@@ -104,18 +104,18 @@ PYTORCH GRADCAM SETUP
 ═════════════════════
 
 - ONNX is used for inference and the occlusion fallback by default.
-- To enable PyTorch Grad-CAM from `models/epoch_72.pth`, create a separate CTransCNN Python environment from `CTransCNN/requirements.txt`.
-- On macOS, that CTransCNN env should use CPU `torch==1.12.1` and `mmcv==1.6.0` from the repo file, not the CUDA wheel pins from the original training machine.
-- Point the backend at that interpreter with:
+- To enable PyTorch Grad-CAM from `models/best_medfusionnet.pth`, create a dedicated MedFusionNet backend environment from `requirements.medfusion.txt`.
+- On macOS, use Python 3.10 with `torch==2.5.1` and `torchvision==0.20.1`, which are a matched pair for the MedFusionNet wrapper.
+- `start.sh` will create `.venv-medfusion` automatically if it does not exist, or you can create it manually with:
 
-  `export CTRANS_PYTHON=/path/to/ctranscnn/python`
+  `python3.10 -m venv .venv-medfusion`
 
-- If `CTRANS_PYTHON` is not set, the backend keeps using the ONNX path and still works.
+- If the MedFusionNet env is not set up, the backend still runs and falls back to ONNX occlusion, but you will not get PyTorch Grad-CAM.
 
 DOCKER / LINUX ROUTE
 ════════════════════
 
-If the native Mac CTransCNN environment keeps failing, run the backend in Docker:
+If the native Mac MedFusionNet environment keeps failing, run the backend in Docker:
 
 1. Build and start the Linux backend:
 
@@ -134,7 +134,6 @@ If the native Mac CTransCNN environment keeps failing, run the backend in Docker
    `http://localhost:3000`
 
 Notes:
-- The compose file pins `platform: linux/amd64` for better compatibility with `torch==1.12.1` and `mmcv==1.6.0`.
 - The container uses `pdflatex` in PATH. If report generation ever complains about missing LaTeX packages, install the extra TeX packages in `Dockerfile.backend` or switch the report flow to the ReportLab fallback.
 
 
@@ -171,7 +170,7 @@ YOU'RE READY TO GO! 🚀
 
 Everything is installed and configured. Just run:
 
-Terminal 1:  python3 api.py
+Terminal 1:  source .venv-medfusion/bin/activate && python3 api.py
 Terminal 2:  npm run dev
 Browser:     http://localhost:3000
 

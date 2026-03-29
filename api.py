@@ -72,7 +72,7 @@ DISEASE_LABELS = [
 ]
 
 MODEL_PATH = "models/ctranscnn_1.onnx"
-MODEL_PATH1 = "CTransCNN/models/epoch_45.pth"
+MODEL_PATH1 = "models/best_medfusionnet.pth"
 
 # Storage paths
 UPLOAD_DIR = Path("outputs/uploads")
@@ -147,7 +147,10 @@ async def root():
 
 
 @app.post("/api/upload", response_model=dict)
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(
+    file: UploadFile = File(...),
+    age: Optional[float] = Form(None),
+):
     """
     Upload chest X-ray image.
     
@@ -169,6 +172,7 @@ async def upload_image(file: UploadFile = File(...)):
     # Store session data
     sessions[session_id] = {
         "file_path": str(file_path),
+        "age": float(age) if age is not None else 48.0,
         "uploaded_at": datetime.now().isoformat(),
         "predictions": None,
         "gradcam": None,
@@ -194,10 +198,11 @@ async def run_inference(session_id: str = Form(...)):
     
     session = sessions[session_id]
     file_path = session["file_path"]
+    age = float(session.get("age", 48.0))
     
     # Run inference
     try:
-        probs = predict(file_path)
+        probs = predict(file_path, age=age)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inference failed: {str(e)}")
     
@@ -237,6 +242,7 @@ async def generate_gradcam(request: GradCAMRequest):
         raise HTTPException(status_code=404, detail="Session not found")
     
     session = sessions[request.session_id]
+    age = float(session.get("age", 48.0))
     
     if session["predictions"] is None:
         raise HTTPException(
@@ -269,6 +275,7 @@ async def generate_gradcam(request: GradCAMRequest):
             threshold=request.threshold,
             target_index=request.disease_index,
             pth_model_path=MODEL_PATH1,
+            age=age,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"GradCAM generation failed: {str(e)}")

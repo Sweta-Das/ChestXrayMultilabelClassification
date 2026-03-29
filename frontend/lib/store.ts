@@ -11,6 +11,10 @@ interface Disease {
 }
 
 interface AppState {
+  // Patient info
+  patientAge: string;
+  setPatientAge: (age: string) => void;
+
   // Session
   sessionId: string | null;
   setSessionId: (id: string | null) => void;
@@ -52,6 +56,10 @@ interface AppState {
 }
 
 export const useStore = create<AppState>((set) => ({
+  // Patient info
+  patientAge: '48',
+  setPatientAge: (age) => set({ patientAge: age }),
+
   // Session
   sessionId: null,
   setSessionId: (id) => set({ sessionId: id }),
@@ -94,6 +102,7 @@ export const useStore = create<AppState>((set) => ({
   reset: () =>
     set({
       sessionId: null,
+      patientAge: '48',
       uploadedFile: null,
       uploadedImageUrl: null,
       predictions: null,

@@ -6,7 +6,14 @@ import { useStore } from '@/lib/store';
 import { uploadImage } from '@/lib/api';
 
 export default function ImageUploader() {
-  const { setUploadedFile, setSessionId, setLoading, reset } = useStore();
+  const {
+    patientAge,
+    setPatientAge,
+    setUploadedFile,
+    setSessionId,
+    setLoading,
+    reset,
+  } = useStore();
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +36,7 @@ export default function ImageUploader() {
       // Upload to backend
       setLoading(true, 'Uploading image...');
       try {
-        const response = await uploadImage(file);
+        const response = await uploadImage(file, patientAge);
         setSessionId(response.session_id);
       } catch (error) {
         console.error('Upload failed:', error);
@@ -39,7 +46,7 @@ export default function ImageUploader() {
         setLoading(false);
       }
     },
-    [setUploadedFile, setSessionId, setLoading, reset]
+    [patientAge, setUploadedFile, setSessionId, setLoading, reset]
   );
 
   const handleDrop = useCallback(
@@ -74,6 +81,25 @@ export default function ImageUploader() {
       onDragOver={handleDragOver}
     >
       <div className="space-y-4">
+        <div className="max-w-xs mx-auto">
+          <label htmlFor="patient-age" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Patient Age
+          </label>
+          <input
+            id="patient-age"
+            type="number"
+            min="0"
+            max="120"
+            step="1"
+            value={patientAge}
+            onChange={(e) => setPatientAge(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. 48"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Used by MedFusionNet for inference and Grad-CAM.
+          </p>
+        </div>
         <div className="flex justify-center">
           <svg
             className="w-16 h-16 text-gray-400"

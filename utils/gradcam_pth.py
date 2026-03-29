@@ -1,4 +1,4 @@
-"""PyTorch Grad-CAM helpers for the CTransCNN checkpoint.
+"""PyTorch Grad-CAM helpers for the CTransCNN and MedFusionNet checkpoints.
 
 This module is responsible for the higher-quality explanation path:
 load the `.pth` model only when the user asks for an explanation, then
@@ -24,6 +24,9 @@ from PIL import Image
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
+from MedFusionNet.medfusionnet import (
+    load_medfusionnet_from_checkpoint,
+)
 
 _CACHED_MODEL_KEYS: set[str] = set()
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -67,6 +70,53 @@ class GradCAMWrapper(nn.Module):
         return features
 
 
+class LogitOrderWrapper(nn.Module):
+    """Reorder classifier outputs so Grad-CAM class indices stay consistent."""
+
+    def __init__(
+        self,
+        model: nn.Module,
+        source_labels: Sequence[str],
+        target_labels: Sequence[str],
+    ):
+        super().__init__()
+        self.model = model
+        self.source_labels = list(source_labels)
+        self.target_labels = list(target_labels)
+        self._permutation = self._build_permutation(
+            self.source_labels, self.target_labels
+        )
+
+    @staticmethod
+    def _normalize(label: str) -> str:
+        return label.replace("_", " ").replace("-", " ").lower().strip()
+
+    @classmethod
+    def _build_permutation(
+        cls,
+        source_labels: Sequence[str],
+        target_labels: Sequence[str],
+    ) -> Optional[torch.Tensor]:
+        source_index = {
+            cls._normalize(label): idx for idx, label in enumerate(source_labels)
+        }
+        permutation = []
+        for label in target_labels:
+            idx = source_index.get(cls._normalize(label))
+            if idx is None:
+                return None
+            permutation.append(idx)
+        if permutation == list(range(len(permutation))):
+            return None
+        return torch.tensor(permutation, dtype=torch.long)
+
+    def forward(self, x):
+        logits = self.model(x)
+        if self._permutation is None:
+            return logits
+        return logits.index_select(1, self._permutation.to(logits.device))
+
+
 def _to_device(model: nn.Module, device: torch.device) -> nn.Module:
     return model.to(device).eval()
 
@@ -87,6 +137,8 @@ def load_model_from_checkpoint(
     *,
     device: Optional[torch.device] = None,
     model_factory: Optional[Callable[[], nn.Module]] = None,
+    class_labels: Optional[Sequence[str]] = None,
+    age: Optional[float] = None,
 ) -> nn.Module:
     """Load a torch model from a checkpoint.
 
@@ -99,41 +151,49 @@ def load_model_from_checkpoint(
     """
 
     device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model_path = str(model_path)
 
     if model_factory is None:
-        cache_key = f"{str(model_path)}::{str(device)}"
+        cache_key = f"{model_path}::{str(device)}"
         if cache_key in _CACHED_MODEL_KEYS:
             print(f"Reusing cached Grad-CAM model: {cache_key}", file=sys.stderr)
         else:
             print(f"Loading Grad-CAM model into cache: {cache_key}", file=sys.stderr)
         load_errors = []
         try:
-            model = _load_ctranscnn_model_cached(str(model_path), str(device))
+            if "medfusion" in Path(model_path).name.lower():
+                model = _load_medfusionnet_model_cached(
+                    model_path,
+                    str(device),
+                    float(age) if age is not None else None,
+                    tuple(class_labels) if class_labels is not None else None,
+                )
+            else:
+                model = _load_ctranscnn_model_cached(model_path, str(device))
         except Exception as exc:
-            load_errors.append(f"config-based load: {type(exc).__name__}: {exc}")
+            load_errors.append(f"specialized load: {type(exc).__name__}: {exc}")
             print(
-                "CTransCNN config-based load failed, falling back to generic checkpoint load: "
+                "Specialized Grad-CAM load failed, falling back to generic checkpoint load: "
                 f"{type(exc).__name__}: {exc}",
                 file=sys.stderr,
             )
             try:
-                model = _load_model_from_checkpoint_cached(str(model_path), str(device))
+                model = _load_model_from_checkpoint_cached(model_path, str(device))
             except Exception as fallback_exc:
                 load_errors.append(
                     f"generic checkpoint load: {type(fallback_exc).__name__}: {fallback_exc}"
                 )
                 raise RuntimeError(
-                    "Unable to load the CTransCNN .pth checkpoint. "
-                    "Checked the config-based rebuild from "
-                    f"{CTRANS_CNN_CONFIG} and the generic torch.load fallback. "
-                    "If this is a state_dict checkpoint, ensure the backend has "
-                    "the CTransCNN dependencies from CTransCNN/requirements.txt. "
+                    "Unable to load the Grad-CAM checkpoint. "
+                    "Checked the specialized loader and the generic torch.load fallback. "
                     f"Details: {' | '.join(load_errors)}"
                 ) from fallback_exc
         _CACHED_MODEL_KEYS.add(cache_key)
+        if class_labels is not None and hasattr(model, "class_labels"):
+            return LogitOrderWrapper(model, model.class_labels, class_labels)
         return model
 
-    checkpoint = torch.load(str(model_path), map_location=device)
+    checkpoint = torch.load(model_path, map_location=device)
 
     if isinstance(checkpoint, nn.Module):
         return _to_device(checkpoint, device)
@@ -152,7 +212,10 @@ def load_model_from_checkpoint(
     if isinstance(checkpoint, dict) and model_factory is not None:
         model = model_factory()
         model.load_state_dict(checkpoint, strict=False)
-        return _to_device(model, device)
+        model = _to_device(model, device)
+        if class_labels is not None and hasattr(model, "class_labels"):
+            return LogitOrderWrapper(model, model.class_labels, class_labels)
+        return model
 
     raise RuntimeError(
         "Could not reconstruct the PyTorch model from the checkpoint. "
@@ -200,6 +263,23 @@ def _load_ctranscnn_model_cached(model_path: str, device_str: str) -> nn.Module:
 
 
 @lru_cache(maxsize=4)
+def _load_medfusionnet_model_cached(
+    model_path: str,
+    device_str: str,
+    age: Optional[float] = None,
+    class_labels: Optional[tuple[str, ...]] = None,
+) -> nn.Module:
+    device = torch.device(device_str)
+    model = load_medfusionnet_from_checkpoint(
+        model_path,
+        device=device,
+        default_age=float(age) if age is not None else 48.0,
+        target_labels=class_labels,
+    )
+    return _to_device(model, device)
+
+
+@lru_cache(maxsize=4)
 def _load_model_from_checkpoint_cached(model_path: str, device_str: str) -> nn.Module:
     device = torch.device(device_str)
     if not Path(model_path).exists():
@@ -232,6 +312,15 @@ def find_target_layer(model: nn.Module) -> nn.Module:
     """Find the spatial layer Grad-CAM should hook into."""
 
     preferred_suffixes = (
+        "model.backbone.features.denseblock4.denselayer16.conv2",
+        "model.backbone.features.denseblock4.denselayer16.conv1",
+        "model.backbone.features.denseblock4",
+        "model.backbone.features.norm5",
+        "backbone.features.denseblock4.denselayer16.conv2",
+        "backbone.features.denseblock4.denselayer16.conv1",
+        "backbone.features.denseblock4",
+        "backbone.features.norm5",
+        "fpn.lateral",
         "conv_trans_12.fusion_block.conv3",
         "fusion_block.conv3",
     )
@@ -282,6 +371,7 @@ def generate_multi_disease_heatmaps(
     threshold: float = 0.1,
     target_index: Optional[int] = None,
     model_factory: Optional[Callable[[], nn.Module]] = None,
+    age: Optional[float] = None,
 ) -> dict:
     """Generate Grad-CAM overlays using the PyTorch checkpoint.
 
@@ -294,6 +384,8 @@ def generate_multi_disease_heatmaps(
         model_path,
         device=device,
         model_factory=model_factory,
+        class_labels=disease_labels,
+        age=age,
     )
 
     target_layer = find_target_layer(model)
@@ -389,6 +481,7 @@ def _cli():
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--threshold", type=float, default=0.1)
     parser.add_argument("--target-index", type=int, default=None)
+    parser.add_argument("--age", type=float, default=None)
     args = parser.parse_args()
 
     predictions = json.loads(args.predictions)
@@ -402,6 +495,7 @@ def _cli():
         top_k=args.top_k,
         threshold=args.threshold,
         target_index=args.target_index,
+        age=args.age,
     )
     print(json.dumps(result))
 

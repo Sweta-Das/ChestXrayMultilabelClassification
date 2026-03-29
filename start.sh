@@ -9,19 +9,47 @@ echo "=========================================="
 echo ""
 
 # Check if Python virtual environment exists
-if [ ! -d "venv" ]; then
+VENV_DIR=".venv-medfusion"
+if [ -n "${PYTHON_BIN:-}" ] && command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v "$PYTHON_BIN")"
+elif [ -x ".venv/bin/python" ]; then
+    # Reuse the existing Python 3.10 interpreter if the old venv is still present.
+    PYTHON_BIN=".venv/bin/python"
+elif command -v python3.10 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3.10)"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3)"
+else
+    echo "⚠️  No usable Python interpreter found."
+    echo "This branch expects Python 3.10 for the MedFusionNet backend."
+    echo "Set PYTHON_BIN to a Python 3.10 executable and try again."
+    exit 1
+fi
+
+PYTHON_VERSION="$("$PYTHON_BIN" -c 'import sys; print(f"{sys.version_info[0]}.{sys.version_info[1]}")')"
+case "$PYTHON_VERSION" in
+    3.10|3.11|3.12)
+        ;;
+    *)
+        echo "⚠️  Detected Python $PYTHON_VERSION, but this backend needs Python 3.10 to 3.12."
+        echo "Set PYTHON_BIN to a compatible interpreter and try again."
+        exit 1
+        ;;
+esac
+
+if [ ! -d "$VENV_DIR" ]; then
     echo "⚠️  Virtual environment not found!"
-    echo "Creating virtual environment..."
-    python3 -m venv venv
+    echo "Creating virtual environment at $VENV_DIR..."
+    "$PYTHON_BIN" -m venv "$VENV_DIR"
 fi
 
 # Activate virtual environment
 echo "📦 Activating virtual environment..."
-source venv/bin/activate
+source "$VENV_DIR/bin/activate"
 
 # Install backend dependencies
 echo "📥 Installing backend dependencies..."
-pip install -q -r requirements.txt
+pip install -q -r requirements.medfusion.txt
 
 # Check for OpenAI API key
 if [ -z "$OPENAI_API_KEY" ] && [ ! -f ".env" ]; then

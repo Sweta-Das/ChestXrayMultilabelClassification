@@ -38,9 +38,15 @@ export interface ReportResponse {
 /**
  * Upload chest X-ray image
  */
-export async function uploadImage(file: File): Promise<{ session_id: string; filename: string }> {
+export async function uploadImage(
+  file: File,
+  age?: string
+): Promise<{ session_id: string; filename: string }> {
   const formData = new FormData();
   formData.append('file', file);
+  if (age !== undefined && age.trim() !== '') {
+    formData.append('age', age);
+  }
 
   const response = await fetch(`${API_BASE_URL}/api/upload`, {
     method: 'POST',

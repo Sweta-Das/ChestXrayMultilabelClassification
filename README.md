@@ -6,7 +6,7 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 
 - Upload a chest X-ray
 - Run multi-label disease prediction with ONNX
-- Select a disease and generate a Grad-CAM explanation with the `.pth` CTransCNN model
+- Select a disease and generate a Grad-CAM explanation with the MedFusionNet `.pth` model
 - Fall back to ONNX occlusion if PyTorch explainability is unavailable
 - Generate a clinical-style PDF report with RAG + LaTeX
 - Compare Grad-CAM against NIH bbox annotations for evaluation
@@ -16,7 +16,7 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 - Frontend: Next.js, TypeScript, Zustand
 - Backend: FastAPI, Python 3.10+
 - Prediction: `models/ctranscnn_1.onnx`
-- Explainability: `CTransCNN/models/epoch_45.pth`
+- Explainability: `models/best_medfusionnet.pth`
 - Fallback heatmap: ONNX occlusion
 - Report generation: OpenAI RAG + LaTeX PDF
 - Evaluation: `scripts/compare_gradcam_bbox.py`
@@ -66,12 +66,11 @@ This is useful for checking whether the explanation lands in the same anatomical
 
 ## Runtime Notes
 
-- The main app can run with the Mac frontend and Docker backend split.
-- The Docker backend is used for the CTransCNN / MMCV / PyTorch Grad-CAM stack.
-- `CTRANS_PYTHON` can point to an external CTransCNN interpreter if needed.
+- The main app can run with the Mac frontend and a local MedFusionNet backend venv.
+- The recommended backend venv is `.venv-medfusion`.
+- `PYTHON_BIN` can point `start.sh` at a specific Python 3.10 interpreter if needed.
 - `LATEX_BIN` can override the PDF compiler path.
 
 ## More Detail
 
 See `ARCHITECTURE.txt` for the full system breakdown and data flow.
-
