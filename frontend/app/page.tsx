@@ -6,6 +6,7 @@ import PredictionResults from '@/components/PredictionResults';
 import ActionButtons from '@/components/ActionButtons';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import ReportPreview from '@/components/ReportPreview';
+import BBoxComparisonViewer from '@/components/BBoxComparisonViewer';
 import { useStore } from '@/lib/store';
 
 export default function Home() {
@@ -111,6 +112,9 @@ export default function Home() {
 
               {/* Report Preview */}
               <ReportPreview />
+
+              {/* BBox vs Grad-CAM Comparison */}
+              <BBoxComparisonViewer />
             </div>
           </div>
         )}
@@ -121,8 +125,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             <p>
-              <strong>CTrans-CNN</strong> AI Model | Powered by ONNX Runtime | GradCAM
-              Explainability
+              <strong>MedFusionNet</strong> AI Model | PyTorch Grad-CAM Explainability | RAG Medical Reports
             </p>
             <p className="mt-2">
               ⚠️ For research and educational purposes only. Not for clinical diagnosis.

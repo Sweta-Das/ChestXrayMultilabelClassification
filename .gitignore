@@ -35,4 +35,6 @@ Thumbs.db
 *.pkl
 *.pth
 *.log
+*.zip
 outputs/
+dataset/

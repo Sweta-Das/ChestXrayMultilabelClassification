@@ -15,6 +15,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 
+# List of 14 chest x-ray labels
 MEDFUSION_LABELS = [
     "Atelectasis",
     "Cardiomegaly",
@@ -34,16 +35,19 @@ MEDFUSION_LABELS = [
 
 
 def _normalize_label(label: str) -> str:
+    """Remove punctuation and lowercase for label matching."""
     return label.replace("_", " ").replace("-", " ").lower().strip()
 
 
 def _strip_module_prefix(state_dict: dict) -> dict:
+    """Remove 'module.' prefix from state_dict keys if present."""
     return {
         key.removeprefix("module."): value for key, value in state_dict.items()
     }
 
 
 def _looks_like_state_dict(candidate: object) -> bool:
+    """Heuristic check if the candidate looks like a state_dict."""
     if not isinstance(candidate, dict) or not candidate:
         return False
     return all(isinstance(value, torch.Tensor) for value in candidate.values())
@@ -53,6 +57,7 @@ def _build_permutation(
     source_labels: Sequence[str],
     target_labels: Sequence[str],
 ) -> Optional[torch.Tensor]:
+    """Build a permutation tensor to reorder model outputs to match target_labels."""
     source_index = {_normalize_label(label): idx for idx, label in enumerate(source_labels)}
     permutation = []
     for label in target_labels:
@@ -66,10 +71,13 @@ def _build_permutation(
 
 
 class DenseNetBackbone(nn.Module):
+    """DenseNet-121 backbone for feature extraction.
+        - input image -> DenseNet-121 features (1024 channels) 
+        - output -> high-level feature map (batch_size, 1024, H/32, W/32)
+    """
     def __init__(self):
         super().__init__()
-        # The checkpoint already contains the learned weights, so avoid a
-        # network download here.
+        # The checkpoint already contains the learned weights, so avoid a network download here.
         densenet = models.densenet121(weights=None)
         self.features = densenet.features
 
@@ -78,6 +86,10 @@ class DenseNetBackbone(nn.Module):
 
 
 class SelfAttention(nn.Module):
+    """Simple self-attention mechanism for tabular data.
+        - input tabular -> (batch_size, seq_len=1, tabular_dim)
+        - output -> attended features (batch_size, seq_len=1, hidden_dim)
+    """
     def __init__(self, input_dim: int, hidden_dim: int):
         super().__init__()
         self.query = nn.Linear(input_dim, hidden_dim)
@@ -95,6 +107,10 @@ class SelfAttention(nn.Module):
 
 
 class FeaturePyramidNetwork(nn.Module):
+    """Simple FPN to reduce DenseNet features to a single scale.
+        - input features -> (batch_size, 1024, H/32, W/32)
+        - output features -> (batch_size, out_channels, H/32, W/32)
+    """
     def __init__(self, out_channels: int = 128):
         super().__init__()
         self.lateral = nn.Conv2d(1024, out_channels, kernel_size=1)
@@ -104,6 +120,12 @@ class FeaturePyramidNetwork(nn.Module):
 
 
 class MedFusionNet(nn.Module):
+    """MedFusionNet architecture combining DenseNet features with tabular data.
+    - input images -> DenseNet + FPN (1x1 conv & global avg pool) -> image features (batch_size, 128)
+    - input tabular -> Self-Attention -> tabular features (batch_size, 64)
+    - fusion -> fully connected layers -> output logits (batch_size, num_classes)
+    """
+
     def __init__(self, tabular_dim: int, num_classes: int):
         super().__init__()
         self.backbone = DenseNetBackbone()
@@ -132,7 +154,9 @@ class MedFusionNet(nn.Module):
 
 
 class MedFusionGradCAMWrapper(nn.Module):
-    """Make MedFusionNet look like a single-input classifier for Grad-CAM."""
+    """Make MedFusionNet look like a single-input classifier for Grad-CAM.
+        - input images -> forward pass with optional age (default 48) -> output logits (batch_size, num_classes)
+    """
 
     def __init__(
         self,

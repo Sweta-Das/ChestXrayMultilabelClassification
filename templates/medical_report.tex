@@ -1,7 +1,7 @@
 % ============================================================================
 %  AI-ASSISTED CHEST RADIOGRAPH ANALYSIS REPORT
 %  Professional Clinical-Grade Report Template
-%  CTransCNN Deep Learning Architecture + RAG Clinical Reasoning
+%  MedFusionNet Deep Learning Architecture + RAG Clinical Reasoning
 %  Version 2.0 | Confidential Medical Document
 % ============================================================================
 
@@ -157,7 +157,7 @@
 	% -- Subtitle
 	\node[anchor=north west, text=headerGold, font=\fontsize{9}{11}\selectfont]
 		at ([xshift=40pt, yshift=-60pt]current page.north west)
-		{CTransCNN Deep Learning Architecture\ \ \textbar\ \ RAG-Enhanced Clinical Reasoning\ \ \textbar\ \ Automated Diagnostic Support};
+		{MedFusionNet Deep Learning Architecture\ \ \textbar\ \ RAG-Enhanced Clinical Reasoning\ \ \textbar\ \ Automated Diagnostic Support};
 	% -- Report ID (right side)
 	\node[anchor=north east, text=white!80, font=\fontsize{8}{10}\selectfont]
 		at ([xshift=-40pt, yshift=-20pt]current page.north east)
@@ -181,9 +181,10 @@
 	\faUser\ \ Patient ID: & {{PATIENT_ID}} &
 	\faCalendar*\ \ Report Date: & {{REPORT_DATE}} \\
 	\faImage\ \ Modality: & Posterior-Anterior (PA) Chest Radiograph &
-	\faCog\ \ AI Model: & CTransCNN v1.0 (ONNX) \\
+	\faCog\ \ AI Model: & MedFusionNet v1.0 (PyTorch) \\
 	\faFlask\ \ Analysis: & Deep Learning + RAG Clinical Reasoning &
 	\faSearch\ \ Conditions Screened: & {{NUM_CONDITIONS}} Pathologies \\
+	\faUser\ \ Patient Age: & {{PATIENT_AGE}} years & & \\
 \end{tabularx}
 \end{patientcard}
 
@@ -264,7 +265,7 @@ Probabilities above 50\% warrant clinical correlation; values above 70\% indicat
 
 \vspace{0.3em}
 {\scriptsize\color{textSecondary}
-\ding{110}\ Probabilities are derived from the CTransCNN model output layer via softmax normalization.
+\ding{110}\ Probabilities are derived from the MedFusionNet model output layer via sigmoid activation.
 Significance levels: \textcolor{riskHigh}{\textbf{High}} ($\geq$50\%) \textbar\
 \textcolor{riskModerate}{\textbf{Moderate}} (30--49\%) \textbar\
 \textcolor{riskLow}{\textbf{Low}} ($<$30\%)}
@@ -295,16 +296,20 @@ and the patient's diagnostic findings. It is intended to assist -- not replace -
 		The chest radiograph is resized to 224$\times$224 pixels, normalized using ImageNet channel statistics
 		($\mu$=[0.485, 0.456, 0.406], $\sigma$=[0.229, 0.224, 0.225]), and converted to a 4D tensor for model input.
 
-	\item \textbf{Deep Learning Classification (CTransCNN):}
-		A hybrid Convolutional Transformer Neural Network (CTransCNN) processes the image through convolutional
-		feature extraction layers followed by multi-head self-attention transformer blocks.
+	\item \textbf{Deep Learning Classification (MedFusionNet):}
+		MedFusionNet fuses visual and demographic information: a DenseNet backbone extracts multi-scale
+		chest radiograph features, a self-attention module captures long-range spatial dependencies,
+		and a Feature Pyramid Network (FPN) aggregates these representations alongside the patient's
+		age for joint multi-label classification.
 		The model was trained on the NIH ChestX-ray14 dataset (112,120 frontal-view chest radiographs)
-		and outputs probability scores for {{NUM_CONDITIONS}} thoracic pathologies.
+		and outputs sigmoid probability scores for {{NUM_CONDITIONS}} thoracic pathologies.
 
-	\item \textbf{Explainability (Occlusion-Based Saliency):}
-		Spatial regions of diagnostic importance are identified using structured occlusion sensitivity analysis.
-		A 28$\times$28 sliding window systematically occludes image regions, and the resulting probability
-		deviations are mapped to generate class-specific heatmaps highlighting pathologically relevant areas.
+	\item \textbf{Explainability (PyTorch Grad-CAM):}
+		Class-specific heatmaps are generated using Gradient-weighted Class Activation Mapping (Grad-CAM)
+		applied directly to the MedFusionNet PyTorch checkpoint (\texttt{best\_medfusionnet.pth}).
+		Gradients flowing back from the target class logit are used to weight the final convolutional
+		feature maps, producing a spatially resolved saliency map that highlights pathologically
+		relevant regions in the radiograph.
 
 	\item \textbf{Clinical Reasoning (RAG Pipeline):}
 		A Retrieval-Augmented Generation (RAG) pipeline retrieves relevant medical literature from a curated
@@ -320,10 +325,10 @@ and the patient's diagnostic findings. It is intended to assist -- not replace -
 
 \begin{patientcard}
 \begin{tabularx}{\textwidth}{@{}>{\bfseries\small}l >{\small}X@{}}
-	Model Architecture: & CTransCNN (Convolutional Transformer CNN) -- ONNX Runtime Inference \\
+	Model Architecture: & MedFusionNet (DenseNet + Self-Attention + FPN) -- PyTorch Inference \\
 	Training Dataset: & NIH ChestX-ray14 (112,120 images, 14 pathology classes) \\
-	Input Specification: & 224 $\times$ 224 px, 3-channel RGB, ImageNet normalization \\
-	Inference Engine: & ONNX Runtime 1.16.3 (CPU optimized) \\
+	Input Specification: & 224 $\times$ 224 px, 3-channel RGB, ImageNet normalization + patient age \\
+	Inference Engine: & PyTorch (native \texttt{.pth} checkpoint) \\
 	Report Generation: & OpenAI GPT-4o-mini via RAG pipeline with medical knowledge retrieval \\
 	Report Standard: & Structured radiology report format per ACR guidelines \\
 \end{tabularx}
@@ -374,7 +379,7 @@ or treatment plan.
 \begin{tabularx}{\textwidth}{@{}X X@{}}
 \begin{minipage}[t]{0.45\textwidth}
 	\small
-	\textbf{AI System:} CTransCNN v1.0\\
+	\textbf{AI System:} MedFusionNet v1.0\\
 	\textbf{Report Engine:} RAG + LaTeX Pipeline\\
 	\textbf{Report ID:} {{REPORT_ID}}
 \end{minipage}

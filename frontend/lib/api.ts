@@ -35,6 +35,34 @@ export interface ReportResponse {
   findings: Record<string, number>;
 }
 
+export interface SessionData {
+  file_path: string;
+  original_filename: string;
+  age: number;
+  uploaded_at: string;
+  predictions?: Record<string, number> | null;
+  gradcam?: unknown;
+  report?: unknown;
+  probs_list?: number[] | null;
+}
+
+export interface BBoxComparisonResponse {
+  found: boolean;
+  image_index?: string;
+  disease?: string;
+  available_diseases?: string[];
+  bbox?: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  };
+  gradcam_probability?: number;
+  bbox_heatmap_energy_ratio?: number;
+  triptych?: string;
+  message?: string;
+}
+
 /**
  * Upload chest X-ray image
  */
@@ -170,6 +198,38 @@ export async function generateReport(
 }
 
 /**
+ * Compare Grad-CAM against NIH ground-truth bounding boxes
+ */
+export async function generateBBoxComparison(
+  sessionId: string,
+  disease?: string
+): Promise<BBoxComparisonResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/bbox-comparison`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      session_id: sessionId,
+      disease,
+    }),
+  });
+
+  if (!response.ok) {
+    let message = 'BBox comparison failed';
+    try {
+      const err = await response.json();
+      if (err?.detail) message = `BBox comparison failed: ${err.detail}`;
+    } catch {
+      // keep default message
+    }
+    throw new Error(message);
+  }
+
+  return response.json();
+}
+
+/**
  * Download report PDF
  */
 export function getDownloadUrl(sessionId: string): string {
@@ -179,14 +239,14 @@ export function getDownloadUrl(sessionId: string): string {
 /**
  * Get session data
  */
-export async function getSession(sessionId: string): Promise<any> {
+export async function getSession(sessionId: string): Promise<SessionData> {
   const response = await fetch(`${API_BASE_URL}/api/session/${sessionId}`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch session');
   }
 
-  return response.json();
+  return response.json() as Promise<SessionData>;
 }
 
 /**
