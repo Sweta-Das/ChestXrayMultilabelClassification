@@ -6,7 +6,6 @@ import PredictionResults from '@/components/PredictionResults';
 import ActionButtons from '@/components/ActionButtons';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import ReportPreview from '@/components/ReportPreview';
-import BBoxComparisonViewer from '@/components/BBoxComparisonViewer';
 import { useStore } from '@/lib/store';
 
 export default function Home() {
@@ -113,8 +112,6 @@ export default function Home() {
               {/* Report Preview */}
               <ReportPreview />
 
-              {/* BBox vs Grad-CAM Comparison */}
-              <BBoxComparisonViewer />
             </div>
           </div>
         )}
