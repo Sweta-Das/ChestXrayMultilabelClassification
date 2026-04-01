@@ -1,11 +1,13 @@
 ---
-title: Chest X-ray Multilabel Classification
+title: PulmoVisionAI
 emoji: 🩺
 colorFrom: blue
 colorTo: indigo
 sdk: docker
+pinned: false
+license: mit
 app_port: 7860
-short_description: FastAPI and Next.js chest X-ray analysis demo with Grad-CAM and report generation
+short_description: Web app for multi-label chest x-ray analysis
 ---
 
 # Chest X-ray Multilabel Classification
@@ -28,7 +30,6 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 - Explainability: `models/best_medfusionnet.pth`
 - Fallback heatmap: ONNX occlusion
 - Report generation: OpenAI RAG + LaTeX PDF
-- Evaluation: `scripts/compare_gradcam_bbox.py`
 
 ## Main Flow
 
@@ -47,7 +48,6 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 - `utils/gradcam.py` - Grad-CAM router and fallback
 - `utils/gradcam_pth.py` - PyTorch Grad-CAM implementation
 - `utils/latex_renderer.py` - PDF rendering
-- `scripts/compare_gradcam_bbox.py` - bbox vs Grad-CAM comparison
 - `frontend/lib/api.ts` - frontend API client
 - `frontend/lib/store.ts` - state management
 
@@ -63,20 +63,11 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 
 ## Runtime Notes
 
-- The main app can run with the Mac frontend and a local MedFusionNet backend venv.
-- The recommended backend venv is `.venv-medfusion`.
-- `PYTHON_BIN` can point `start.sh` at a specific Python 3.10 interpreter if needed.
-- `LATEX_BIN` can override the PDF compiler path.
-
-## Deployment
-
-The repository is now prepared for a single-container **Hugging Face Docker Space**:
-
-- the Next.js frontend is exported statically
-- FastAPI serves both the UI and the API from one container
-- the app listens on port `7860` in Spaces
-
-The deployable container is defined in [Dockerfile](./Dockerfile).
+- The app is packaged for a single-container Hugging Face Docker Space.
+- The Next.js frontend is exported statically.
+- FastAPI serves both the UI and the API from one container.
+- The app listens on port `7860` in Spaces.
+- The deployable container is defined in [Dockerfile](./Dockerfile).
 
 ## More Detail
 
