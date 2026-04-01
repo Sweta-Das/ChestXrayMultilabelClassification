@@ -6,21 +6,19 @@ Replaces Streamlit with professional REST API architecture.
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import torch
 from torch import nn
 from typing import List, Dict, Optional, Any
 from dotenv import load_dotenv
+import os
 import uuid
 from datetime import datetime
 from pathlib import Path
 import shutil
 import io
-import csv
-import base64
-import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 # Load environment variables from project .env before importing modules that use them
 BASE_DIR = Path(__file__).resolve().parent
@@ -78,13 +76,13 @@ DISEASE_LABELS = [
 MODEL_PATH = "models/ctranscnn_1.onnx"
 MODEL_PATH1 = "models/best_medfusionnet.pth"
 
+RUNTIME_BASE = Path(os.getenv("APP_OUTPUT_DIR", "/tmp/chestxray-app"))
+UPLOAD_DIR = RUNTIME_BASE / "outputs/uploads"
+IMAGES_DIR = RUNTIME_BASE / "outputs/images"
+REPORTS_DIR = RUNTIME_BASE / "outputs/reports"
+FRONTEND_DIST_DIR = BASE_DIR / "frontend" / "out"
 
-# Storage paths
-UPLOAD_DIR = Path("outputs/uploads")
-IMAGES_DIR = Path("outputs/images")
-REPORTS_DIR = Path("outputs/reports")
-
-# Create directories
+# Create directories in a writable runtime location.
 for dir_path in [UPLOAD_DIR, IMAGES_DIR, REPORTS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -130,12 +128,6 @@ class ReportResponse(BaseModel):
     findings: Dict[str, float]
 
 
-class BBoxComparisonRequest(BaseModel):
-    """Request model for ground-truth bbox vs Grad-CAM comparison."""
-    session_id: str
-    disease: Optional[str] = None  # if None, pick highest-prob disease that has a bbox
-
-
 # =============================================================================
 # In-memory session storage (for demo; use Redis/DB in production)
 # =============================================================================
@@ -147,7 +139,7 @@ sessions = {}
 # API Endpoints
 # =============================================================================
 
-@app.get("/")
+@app.get("/api/health")
 async def root():
     """Health check endpoint."""
     return {
@@ -183,7 +175,6 @@ async def upload_image(
     # Store session data
     sessions[session_id] = {
         "file_path": str(file_path),
-        "original_filename": file.filename or "",
         "age": float(age) if age is not None else 48.0,
         "uploaded_at": datetime.now().isoformat(),
         "predictions": None,
@@ -528,6 +519,10 @@ def latex_escape(text: str) -> str:
     for k, v in replacements:
         text = text.replace(k, v)
     return text
+
+
+if FRONTEND_DIST_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST_DIR), html=True), name="frontend")
 
 
 # =============================================================================

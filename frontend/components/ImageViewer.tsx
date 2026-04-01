@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
-import Image from 'next/image';
 
 type ViewMode = 'original' | 'heatmap' | 'overlay';
 

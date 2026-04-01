@@ -1,3 +1,13 @@
+---
+title: Chest X-ray Multilabel Classification
+emoji: 🩺
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+short_description: FastAPI and Next.js chest X-ray analysis demo with Grad-CAM and report generation
+---
+
 # Chest X-ray Multilabel Classification
 
 AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Grad-CAM explainability, and PDF report generation.
@@ -9,7 +19,6 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 - Select a disease and generate a Grad-CAM explanation with the MedFusionNet `.pth` model
 - Fall back to ONNX occlusion if PyTorch explainability is unavailable
 - Generate a clinical-style PDF report with RAG + LaTeX
-- Compare Grad-CAM against NIH bbox annotations for evaluation
 
 ## Architecture at a Glance
 
@@ -52,24 +61,22 @@ AI-assisted chest X-ray analysis with fast ONNX prediction, on-demand PyTorch Gr
 - `GET /api/session/{session_id}`
 - `DELETE /api/session/{session_id}`
 
-## Evaluation With NIH BBoxes
-
-The `ref/ref.csv` file contains NIH bounding-box annotations. The comparison script:
-
-- reads the CSV
-- draws the ground-truth bbox
-- runs Grad-CAM for the matching disease
-- saves original, heatmap, and overlay views
-- writes a small JSON summary per sample
-
-This is useful for checking whether the explanation lands in the same anatomical region as the annotation.
-
 ## Runtime Notes
 
 - The main app can run with the Mac frontend and a local MedFusionNet backend venv.
 - The recommended backend venv is `.venv-medfusion`.
 - `PYTHON_BIN` can point `start.sh` at a specific Python 3.10 interpreter if needed.
 - `LATEX_BIN` can override the PDF compiler path.
+
+## Deployment
+
+The repository is now prepared for a single-container **Hugging Face Docker Space**:
+
+- the Next.js frontend is exported statically
+- FastAPI serves both the UI and the API from one container
+- the app listens on port `7860` in Spaces
+
+The deployable container is defined in [Dockerfile](./Dockerfile).
 
 ## More Detail
 
