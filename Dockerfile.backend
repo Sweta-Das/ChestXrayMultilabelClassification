@@ -1,0 +1,48 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    LATEX_BIN=pdflatex
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    build-essential \
+    python-is-python3 \
+    python3.10 \
+    python3.10-dev \
+    python3.10-venv \
+    python3-pip \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1 \
+    libgomp1 \
+    texlive-latex-base \
+    texlive-latex-recommended \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    latexmk \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY CTransCNN/requirements.txt CTransCNN/requirements.txt
+COPY pyproject.toml pyproject.toml
+
+RUN python3 -m pip install --upgrade pip setuptools wheel \
+  && python3 -m pip install --no-cache-dir --no-build-isolation -r CTransCNN/requirements.txt \
+  && python3 -m pip install --no-cache-dir \
+       grad-cam==1.5.5 \
+       python-multipart==0.0.22 \
+       python-dotenv==1.2.1
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]

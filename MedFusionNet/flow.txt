@@ -1,0 +1,3 @@
+Overall runtime path:
+
+checkpoint -> load_medfusionnet_from_checkpoint -> MedFusionGradCAMWrapper -> MedFusionNet -> image branch + tabular branch -> fused logits

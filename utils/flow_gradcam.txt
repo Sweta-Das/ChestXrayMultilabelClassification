@@ -1,0 +1,65 @@
+START
+  ↓
+Call generate_multi_disease_heatmaps(...)
+  ↓
+Is use_pytorch=True AND pth_model_path exists?
+  ↓
+ ┌────────────── YES ───────────────┐
+ ↓                                 ↓
+Check external Python env?     NO external env
+ ↓                                 ↓
+Run subprocess Grad-CAM        Try in-process Grad-CAM
+ ↓                                 ↓
+Success?                        Success?
+ ↓                                 ↓
+YES → RETURN results          YES → RETURN results
+ ↓                                 ↓
+NO → fallback                 NO → fallback
+ └──────────────┬──────────────┘
+                ↓
+Fallback → ONNX Occlusion Path
+                ↓
+Preprocess image
+                ↓
+Select target classes
+                ↓
+FOR each class:
+    ↓
+  Slide occlusion patch
+    ↓
+  Measure prediction drop
+    ↓
+  Build heatmap
+    ↓
+  Apply colormap
+    ↓
+  Overlay on image
+    ↓
+  Convert to base64
+END LOOP
+                ↓
+Return results
+                ↓
+END
+
+Subprocess Grad-CAM = run utils/gradcam_pth.py in a separate Python interpreter.
+In-process Grad-CAM = import and run utils/gradcam_pth.py inside the same backend Python process.
+
+What each one does
+
+1. Subprocess Grad-CAM
+- Used when CTRANS_PYTHON is set.
+- utils/gradcam.py calls _run_external_pth_gradcam(...).
+- That function launches:
+    - python_executable from CTRANS_PYTHON
+    - utils/gradcam_pth.py
+- It passes the model path, image path, predictions, labels, and target index as JSON/CLI args.
+- gradcam_pth.py runs separately and prints JSON back to stdout.
+- gradcam.py reads that JSON and returns it to the API.
+
+2. In-process Grad-CAM
+- Used when CTRANS_PYTHON is not set.
+- utils/gradcam.py imports:
+- from utils.gradcam_pth import generate_multi_disease_heatmaps as generate_pth_heatmaps
+- Then it executes the PyTorch Grad-CAM code in the same backend interpreter.
+- This is simpler and avoids spawning another process.

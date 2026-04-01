@@ -1,0 +1,15 @@
+Image file
+   ↓
+Resize (224×224)
+   ↓
+Convert to numpy
+   ↓
+Normalize [0–1]
+   ↓
+Standardize (ImageNet mean/std)
+   ↓
+Reorder channels (HWC → CHW)
+   ↓
+Add batch dimension
+   ↓
+Output: [1, 3, 224, 224]

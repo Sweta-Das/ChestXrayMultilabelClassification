@@ -1,0 +1,67 @@
+START
+  ↓
+Parse arguments
+  ↓
+Resolve paths (CSV, images, output)
+  ↓
+Load samples from CSV
+  ↓
+Apply label filter (optional)
+  ↓
+Any samples?
+  ↓
+ NO → EXIT
+ YES
+  ↓
+FOR each sample:
+    ↓
+  Limit reached?
+    ↓
+   YES → BREAK
+   NO
+    ↓
+  Check image exists
+    ↓
+   NO → skip
+    ↓
+  Validate label
+    ↓
+   NO → skip
+    ↓
+  Get class index
+    ↓
+  Run prediction + Grad-CAM
+    ↓
+   ERROR → skip
+    ↓
+  Heatmap exists?
+    ↓
+   NO → skip
+    ↓
+  Load original image
+    ↓
+  Draw bbox (scaled)
+    ↓
+  Decode heatmap + overlay
+    ↓
+  Draw bbox on heatmap + overlay
+    ↓
+  Compute bbox_heatmap_energy_ratio
+    ↓
+  Create 3 panels:
+      - Original + bbox
+      - Heatmap + bbox
+      - Overlay + bbox
+    ↓
+  Combine panels (triptych)
+    ↓
+  Save image
+    ↓
+  Save metadata JSON
+    ↓
+  Increment processed
+END LOOP
+  ↓
+Print summary
+  ↓
+END

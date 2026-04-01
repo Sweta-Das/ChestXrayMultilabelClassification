@@ -1,0 +1,44 @@
+# MedFusionNet backend environment
+# Recommended interpreter: Python 3.10
+#
+# Create the venv:
+#   python3.10 -m venv .venv-medfusion
+#   source .venv-medfusion/bin/activate
+#   pip install -r requirements.medfusion.txt
+
+annotated-doc==0.0.4
+annotated-types==0.7.0
+anyio==4.12.1
+certifi==2026.2.25
+charset-normalizer==3.4.6
+click==8.1.8
+distro==1.9.0
+fastapi==0.128.8
+flatbuffers==25.12.19
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.11
+matplotlib==3.9.1
+numpy==2.0.2
+onnxruntime==1.19.2
+openai==2.30.0
+opencv-python==4.13.0.92
+packaging==26.0
+pillow==11.3.0
+protobuf==6.33.6
+pydantic==2.12.5
+pydantic-core==2.41.5
+python-dotenv==1.2.1
+python-multipart==0.0.22
+reportlab==4.4.10
+sniffio==1.3.1
+starlette==0.49.3
+torch==2.5.1
+torchvision==0.20.1
+tqdm==4.67.3
+typing-extensions==4.15.0
+typing-inspection==0.4.2
+uvicorn==0.39.0
+ttach==0.0.3
+grad-cam==1.5.5

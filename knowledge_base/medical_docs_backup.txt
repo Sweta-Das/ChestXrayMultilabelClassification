@@ -1,0 +1,370 @@
+=====================================================================
+AI-ASSISTED MEDICAL KNOWLEDGE BASE
+Domain: Chest X-ray Interpretation
+Scope: Radiological Pattern Recognition (ChestX-ray14)
+Purpose: Contextual grounding for AI-assisted report generation
+Sources: NIH MedlinePlus, Radiopaedia, ChestX-ray14 Literature
+=====================================================================
+
+
+===== DISEASE: Atelectasis =====
+
+OVERVIEW:
+Atelectasis refers to partial or complete collapse of alveolar air
+spaces, resulting in reduced lung volume and impaired gas exchange.
+It may involve a segment, lobe, or entire lung.
+
+RADIOLOGICAL FINDINGS:
+Chest radiographs commonly demonstrate increased opacity in the
+affected region accompanied by evidence of volume loss. Typical
+features include displacement of interlobar fissures, elevation of
+the ipsilateral hemidiaphragm, narrowing of intercostal spaces, and
+mediastinal shift toward the affected side. Crowding of pulmonary
+vessels and bronchi may also be present.
+
+SYMPTOM DESCRIPTIONS:
+Clinical presentation ranges from asymptomatic findings to dyspnea,
+tachypnea, and hypoxemia, particularly in extensive or acute cases.
+
+CLINICAL SIGNIFICANCE:
+Atelectasis is frequently encountered in postoperative patients,
+those with airway obstruction, prolonged immobilization, or mucus
+plugging. Persistent atelectasis may predispose to infection.
+
+LIMITATIONS:
+Radiographic differentiation from consolidation may be challenging,
+especially without longitudinal imaging or clinical correlation.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Cardiomegaly =====
+
+OVERVIEW:
+Cardiomegaly describes enlargement of the cardiac silhouette observed
+on chest radiographs, reflecting increased cardiac size or pericardial
+abnormalities.
+
+RADIOLOGICAL FINDINGS:
+An increased cardiothoracic ratio exceeding approximately 50 percent
+on posteroanterior chest radiographs is suggestive. Associated findings
+may include pulmonary venous congestion, interstitial edema, or pleural
+effusions in advanced cases.
+
+SYMPTOM DESCRIPTIONS:
+Symptoms may include exertional dyspnea, fatigue, peripheral edema,
+orthopnea, or may be absent depending on underlying cardiac function.
+
+CLINICAL SIGNIFICANCE:
+Cardiomegaly may indicate underlying cardiac pathology such as heart
+failure, cardiomyopathy, valvular disease, or chronic hypertension.
+
+LIMITATIONS:
+Apparent cardiomegaly may result from anteroposterior projection,
+suboptimal inspiration, or pericardial effusion, requiring further
+evaluation.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pleural Effusion =====
+
+OVERVIEW:
+Pleural effusion refers to abnormal accumulation of fluid within the
+pleural space between the visceral and parietal pleura.
+
+RADIOLOGICAL FINDINGS:
+Radiographic features include blunting of the costophrenic angles,
+homogeneous basilar opacities, and a meniscus sign. Large effusions may
+cause mediastinal shift and compress adjacent lung tissue.
+
+SYMPTOM DESCRIPTIONS:
+Patients may experience dyspnea, chest discomfort, or cough, though
+small effusions are frequently asymptomatic.
+
+CLINICAL SIGNIFICANCE:
+Pleural effusions may arise from cardiac failure, infection, malignancy,
+trauma, or systemic inflammatory processes.
+
+LIMITATIONS:
+Small or loculated effusions may be difficult to detect on standard
+upright chest radiographs.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pulmonary Infiltration =====
+
+OVERVIEW:
+Pulmonary infiltration denotes the presence of abnormal material such
+as fluid, inflammatory cells, or blood within the lung interstitium
+or alveolar spaces.
+
+RADIOLOGICAL FINDINGS:
+Chest radiographs reveal ill-defined, patchy, or diffuse opacities
+without clear lobar or segmental boundaries. Distribution may be
+unilateral or bilateral.
+
+SYMPTOM DESCRIPTIONS:
+Clinical manifestations vary widely and may include cough, fever,
+dyspnea, or systemic symptoms depending on etiology.
+
+CLINICAL SIGNIFICANCE:
+Infiltrates represent a nonspecific radiographic pattern and require
+integration with clinical and laboratory data for interpretation.
+
+LIMITATIONS:
+Radiographic appearance alone cannot determine underlying cause or
+severity.
+
+SOURCE:
+Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pulmonary Mass =====
+
+OVERVIEW:
+A pulmonary mass is defined as a focal lung lesion typically measuring
+greater than 3 centimeters in diameter.
+
+RADIOLOGICAL FINDINGS:
+Masses appear as rounded or irregular opacities with variable margins,
+which may be smooth, lobulated, or spiculated. Cavitation or associated
+lymphadenopathy may occasionally be observed.
+
+SYMPTOM DESCRIPTIONS:
+Patients may be asymptomatic or present with cough, hemoptysis, chest
+pain, or unexplained weight loss.
+
+CLINICAL SIGNIFICANCE:
+Pulmonary masses raise concern for malignancy and warrant further
+diagnostic evaluation.
+
+LIMITATIONS:
+Chest radiography provides limited lesion characterization; cross-
+sectional imaging is often required.
+
+SOURCE:
+Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pulmonary Nodule =====
+
+OVERVIEW:
+A pulmonary nodule is a small, rounded opacity within the lung
+parenchyma measuring less than 3 centimeters in diameter.
+
+RADIOLOGICAL FINDINGS:
+Discrete, well-circumscribed opacities that may be solitary or multiple.
+Calcification patterns, when visible, may suggest benignity.
+
+SYMPTOM DESCRIPTIONS:
+Pulmonary nodules are commonly asymptomatic and incidentally detected.
+
+CLINICAL SIGNIFICANCE:
+Nodules may represent benign granulomas, infections, or early-stage
+malignancy and often require surveillance.
+
+LIMITATIONS:
+Small nodules may be below the detection threshold of standard chest
+radiographs.
+
+SOURCE:
+Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pneumonia =====
+
+OVERVIEW:
+Pneumonia is an inflammatory condition of the lung parenchyma most
+commonly caused by infectious agents.
+
+RADIOLOGICAL FINDINGS:
+Chest radiographs may demonstrate focal, multifocal, or diffuse areas
+of consolidation, air bronchograms, or increased lung opacity.
+
+SYMPTOM DESCRIPTIONS:
+Typical symptoms include fever, productive cough, dyspnea, and pleuritic
+chest pain.
+
+CLINICAL SIGNIFICANCE:
+Radiographic findings must be interpreted in conjunction with clinical
+presentation and laboratory investigations.
+
+LIMITATIONS:
+Early or mild pneumonia may not be radiographically apparent.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pneumothorax =====
+
+OVERVIEW:
+Pneumothorax is defined by the presence of air within the pleural space,
+resulting in partial or complete lung collapse.
+
+RADIOLOGICAL FINDINGS:
+A visible visceral pleural line with absence of lung markings beyond it
+is characteristic. Large pneumothoraces may cause mediastinal shift.
+
+SYMPTOM DESCRIPTIONS:
+Symptoms range from mild chest discomfort to acute respiratory distress,
+depending on size and rate of onset.
+
+CLINICAL SIGNIFICANCE:
+Prompt recognition is important due to potential for rapid clinical
+deterioration.
+
+LIMITATIONS:
+Small pneumothoraces may be occult on supine chest radiographs.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pulmonary Consolidation =====
+
+OVERVIEW:
+Pulmonary consolidation occurs when alveolar air is replaced by fluid,
+pus, blood, or cellular material.
+
+RADIOLOGICAL FINDINGS:
+Homogeneous increased opacity obscuring bronchovascular markings, often
+confined to a segment or lobe.
+
+SYMPTOM DESCRIPTIONS:
+Symptoms depend on underlying cause and may include fever, cough, or
+dyspnea.
+
+CLINICAL SIGNIFICANCE:
+Most commonly associated with infectious processes but may reflect other
+pathologies.
+
+LIMITATIONS:
+Radiographic appearance alone cannot establish etiology.
+
+SOURCE:
+Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pulmonary Edema =====
+
+OVERVIEW:
+Pulmonary edema involves abnormal accumulation of fluid within the lung
+interstitium and alveoli.
+
+RADIOLOGICAL FINDINGS:
+Bilateral perihilar opacities, interstitial markings, Kerley B lines,
+and a bat-wing distribution may be observed.
+
+SYMPTOM DESCRIPTIONS:
+Patients often present with acute dyspnea, orthopnea, and hypoxemia.
+
+CLINICAL SIGNIFICANCE:
+Frequently associated with cardiac dysfunction or volume overload.
+
+LIMITATIONS:
+Radiographic findings may lag behind clinical presentation.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Emphysema =====
+
+OVERVIEW:
+Emphysema is a chronic lung condition characterized by destruction of
+alveolar walls and enlargement of distal air spaces.
+
+RADIOLOGICAL FINDINGS:
+Hyperinflated lungs, flattened diaphragms, increased retrosternal air
+space, and reduced vascular markings are typical.
+
+SYMPTOM DESCRIPTIONS:
+Progressive dyspnea, reduced exercise tolerance, and chronic cough are
+common.
+
+CLINICAL SIGNIFICANCE:
+A major component of chronic obstructive pulmonary disease.
+
+LIMITATIONS:
+Early disease may not be radiographically visible.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pulmonary Fibrosis =====
+
+OVERVIEW:
+Pulmonary fibrosis involves progressive scarring of lung parenchyma
+leading to reduced lung compliance.
+
+RADIOLOGICAL FINDINGS:
+Reticular opacities, architectural distortion, traction bronchiectasis,
+and reduced lung volumes may be seen.
+
+SYMPTOM DESCRIPTIONS:
+Chronic cough and progressive exertional dyspnea are typical.
+
+CLINICAL SIGNIFICANCE:
+Associated with chronic interstitial lung diseases and environmental
+exposures.
+
+LIMITATIONS:
+Chest X-ray has limited sensitivity compared to high-resolution CT.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Pleural Thickening =====
+
+OVERVIEW:
+Pleural thickening refers to fibrotic involvement of the pleural
+surfaces.
+
+RADIOLOGICAL FINDINGS:
+Localized or diffuse pleural opacities along the chest wall or
+diaphragm, often with irregular margins.
+
+SYMPTOM DESCRIPTIONS:
+Often asymptomatic; may cause restrictive respiratory symptoms if
+extensive.
+
+CLINICAL SIGNIFICANCE:
+May result from prior infection, trauma, or asbestos exposure.
+
+LIMITATIONS:
+Subtle thickening may be difficult to detect radiographically.
+
+SOURCE:
+Radiopaedia; ChestX-ray14
+
+
+===== DISEASE: Diaphragmatic Hernia =====
+
+OVERVIEW:
+Diaphragmatic hernia involves herniation of abdominal contents into
+the thoracic cavity through a defect in the diaphragm.
+
+RADIOLOGICAL FINDINGS:
+Abnormal gas patterns or soft tissue densities above the diaphragm,
+sometimes with displacement of thoracic structures.
+
+SYMPTOM DESCRIPTIONS:
+Symptoms range from incidental findings to respiratory compromise,
+depending on size and contents.
+
+CLINICAL SIGNIFICANCE:
+May be congenital or acquired and can impact pulmonary mechanics.
+
+LIMITATIONS:
+Small hernias may be difficult to visualize on chest radiographs.
+
+SOURCE:
+NIH MedlinePlus; Radiopaedia; ChestX-ray14
